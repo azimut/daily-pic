@@ -16,11 +16,11 @@ Usage
 Just pass a flag corresponding to the image you want to get.
 For example, to get and set the wallpaper from nasa apod:
 ```shell
-bash do.sh -a
+	bash do.sh -a
 
 
 Crontab entry
 -------------
 
 ```shell
-0 */1 * * * cd /home/sendai/projects/daily-pic; bash do.sh -a &> pics/log.txt
+	0 */1 * * * cd /home/sendai/projects/daily-pic; bash do.sh -a &> pics/log.txt
