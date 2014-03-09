@@ -14,10 +14,10 @@ Usage
 -----
 
 Just pass a flag corresponding to the image you want to get.
-For example, to get and set the wallpaper from nasa apod:
+For example, to get and set the wallpaper from nasa apod use the ```-a```` flag:
 
 ```
-bash do.sh -a
+$ bash do.sh -a
   HTTP/1.1 200 OK
   Date: Sun, 09 Mar 2014 20:23:40 GMT
   Server: WebServer/1.0
@@ -30,10 +30,19 @@ bash do.sh -a
 2014-03-09 17:19:20 URL:http://apod.nasa.gov/apod/image/1403/marshole2_hirise_2560.jpg [2422378] -> "marshole2_hirise_2560.jpg" [1]
 ```
 
+Installation steps
+------------------
 
-Crontab entry
--------------
-
+Go to where you want to save this script:
 ```
-0 */1 * * * cd /home/sendai/projects/daily-pic; bash do.sh -a &> pics/log.txt
+$ cd /home/usernamehere/projects
+```
+Clone this repo:
+```
+$ git clone 'https://github.com/azimut/daily-pic'
+```
+Add the crontab for the wallpaper you want:
+```
+$ crontab -e
+0 */1 * * * cd /home/usernamehere/projects/daily-pic; bash do.sh -a &> pics/log.txt
 ```
