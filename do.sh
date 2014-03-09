@@ -50,7 +50,6 @@ http.get.url.nasa.iotd(){
 	if [[ ! -z $image_url ]]; then
 		echo "${image_url}"
 	fi
-
 }
 
 while getopts ':giaf' opt; do
@@ -63,7 +62,11 @@ while getopts ':giaf' opt; do
 	esac
 done
 
+cd pics
+
+# referece: http://blog.yjl.im/2012/03/downloading-only-when-modified-using_23.html
 if [[ ! -z $jpg ]]; then
 	pic_name=${jpg##*/}
-	curl "$jpg" -z $pic_name -o $pic_name --verbose --silent --location
+	wget "$jpg" --server-response --timestamping --no-verbose --ignore-length
+	feh --bg-max "${pic_name}"
 fi
