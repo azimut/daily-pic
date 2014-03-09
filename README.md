@@ -14,7 +14,7 @@ Usage
 -----
 
 Just pass a flag corresponding to the image you want to get.
-For example, to get and set the wallpaper from nasa apod use the ```-a```` flag:
+For example, to get and set the wallpaper from nasa apod use the ```-a``` flag:
 
 ```
 $ bash do.sh -a
@@ -46,3 +46,8 @@ Add the crontab for the wallpaper you want:
 $ crontab -e
 0 */1 * * * cd /home/usernamehere/projects/daily-pic; bash do.sh -a &> pics/log.txt
 ```
+
+TODO
+----
+
+* Add some kind of heuristic to determine what is the best fit for a wallpaper (what feh option use) based on the resolution of the current monitor.
