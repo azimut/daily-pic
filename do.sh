@@ -11,7 +11,7 @@ http.get.url.nasa.apod(){
 	fi
 }
 
-http.get.url.netgeo.(){
+http.get.url.netgeo(){
 	local BASE_URL='http://photography.nationalgeographic.com/photography/photo-of-the-day/'
 	local IMAGE_BASE_URL='images.nationalgeographic.com'
 	local image_url=$(wget --quiet -O - "${BASE_URL}" | egrep -o -m1 "${IMAGE_BASE_URL}"'/.*[0-9]*x[0-9]*.jpg')
@@ -55,10 +55,15 @@ http.get.url.nasa.iotd(){
 
 while getopts ':giaf' opt; do
 	case $opt in
-		g) http.get.url.netgeo. ;;
-		i) http.get.url.nasa.iotd ;;
-		a) http.get.url.nasa.apod ;;
-		f) http.get.url.fvalk ;;
+		g) jpg=$(http.get.url.netgeo) ;;
+		i) jpg=$(http.get.url.nasa.iotd) ;;
+		a) jpg=$(http.get.url.nasa.apod) ;;
+		f) jpg=$(http.get.url.fvalk) ;;
 		*) echo 'uError: option not supported. ';;
 	esac
 done
+
+if [[ ! -z $jpg ]]; then
+	pic_name=${jpg##*/}
+	curl "$jpg" -z $pic_name -o $pic_name --verbose --silent --location
+fi
