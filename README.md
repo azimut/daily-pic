@@ -37,17 +37,19 @@ Go to where you want to save this script:
 ```
 $ cd /home/usernamehere/projects
 ```
-Clone this repo:
+Clone this repo (or just download the zip file):
 ```
 $ git clone 'https://github.com/azimut/daily-pic'
 ```
-Add the crontab for the wallpaper you want:
+Add the following crontab as root or using ```sudo``` (if you are using vixie-cron or if you know how to configure cron you might try to add this as user instead of root):
 ```
-$ crontab -e
-0 */1 * * * cd /home/usernamehere/projects/daily-pic; bash do.sh -a &> pics/log.txt
+# crontab -e
+*/10 * * * * su - usernamehere -c 'cd /home/usernamehere/projects/daily-pic; bash do.sh -a &>> pics/log.txt'
 ```
 
 TODO
 ----
 
+* Get more sources
 * Add some kind of heuristic to determine what is the best fit for a wallpaper (what feh option use) based on the resolution of the current monitor.
+
