@@ -1,5 +1,7 @@
 #!/bin/bash
 
+FEH_OPT='--bg-max'
+
 # https://gist.github.com/JoshSchreuder/882666
 http.get.url.nasa.apod(){
         local BASE_URL='http://apod.nasa.gov/apod/'
@@ -31,6 +33,12 @@ http.get.url.fvalk(){
 	fi
 }
 
+http.get.url.smn.satopes(){
+	local BASE_URL='http://www.smn.gov.ar/pronos/imagenes'
+	local image_url="${BASE_URL}"/satopes.jpg
+	echo "${image_url}"
+}
+
 # Reference: http://awesome.naquadah.org/wiki/NASA_IOTD_Wallpaper
 # The Content-encoding of this server is not always the same, sometimes is gzipped and sometimes not.
 # That's why I am using some login to detect that and "base64" to store the gzip file in a variable.
@@ -53,12 +61,13 @@ http.get.url.nasa.iotd(){
 }
 
 # this will need to be replaced someday with a more custom logic that getopts ~azimut
-while getopts ':giaf' opt; do
+while getopts ':giafs' opt; do
 	case $opt in
 		g) jpg=$(http.get.url.netgeo) ;;
 		i) jpg=$(http.get.url.nasa.iotd) ;;
 		a) jpg=$(http.get.url.nasa.apod) ;;
 		f) jpg=$(http.get.url.fvalk) ;;
+		s) jpg=$(http.get.url.smn.satopes); FEH_OPT='--bg-fill';;
 		*) echo 'uError: option not supported. ';;
 	esac
 done
@@ -69,5 +78,5 @@ cd pics
 if [[ ! -z $jpg ]]; then
 	pic_name=${jpg##*/}
 	wget "$jpg" --server-response --timestamping --no-verbose --ignore-length
-	feh --bg-max "${pic_name}"
+	DISPLAY=:0.0 feh "${FEH_OPT}" "${pic_name}"
 fi

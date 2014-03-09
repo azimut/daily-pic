@@ -7,6 +7,7 @@ Fetch the image of the day from
 * Nasa Astronomy Picture of the Day
 * National Geographic
 * fvalk (satellite images of the earth)
+* Servicio Meteorologico Nacional Argentino
 
 Feel free to add you own :)
 
@@ -50,6 +51,5 @@ Add the following crontab as root or using ```sudo``` (if you are using vixie-cr
 TODO
 ----
 
-* Get more sources
+* Get more sources: daily random code of the day? (github/gist) daily webcam image of the day/hour?
 * Add some kind of heuristic to determine what is the best fit for a wallpaper (what feh option use) based on the resolution of the current monitor.
-
