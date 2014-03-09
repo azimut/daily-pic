@@ -16,7 +16,7 @@ Usage
 Just pass a flag corresponding to the image you want to get.
 For example, to get and set the wallpaper from nasa apod:
 
-```bash
+```
 bash do.sh -a
   HTTP/1.1 200 OK
   Date: Sun, 09 Mar 2014 20:23:40 GMT
@@ -28,11 +28,12 @@ bash do.sh -a
   Connection: close
   Content-Type: image/jpeg
 2014-03-09 17:19:20 URL:http://apod.nasa.gov/apod/image/1403/marshole2_hirise_2560.jpg [2422378] -> "marshole2_hirise_2560.jpg" [1]
-
+```
 
 
 Crontab entry
 -------------
 
-```bash
+```
 0 */1 * * * cd /home/sendai/projects/daily-pic; bash do.sh -a &> pics/log.txt
+```
