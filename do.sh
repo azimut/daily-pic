@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # https://gist.github.com/JoshSchreuder/882666
-# https://gist.github.com/JoshSchreuder/882668
 http.get.url.nasa.apod(){
         local BASE_URL='http://apod.nasa.gov/apod/'
 	local IMAGE_BASE_URL=$BASE_URL
@@ -11,6 +10,7 @@ http.get.url.nasa.apod(){
 	fi
 }
 
+# https://gist.github.com/JoshSchreuder/882668
 http.get.url.netgeo(){
 	local BASE_URL='http://photography.nationalgeographic.com/photography/photo-of-the-day/'
 	local IMAGE_BASE_URL='images.nationalgeographic.com'
@@ -52,6 +52,7 @@ http.get.url.nasa.iotd(){
 	fi
 }
 
+# this will need to be replaced someday with a more custom logic that getopts ~azimut
 while getopts ':giaf' opt; do
 	case $opt in
 		g) jpg=$(http.get.url.netgeo) ;;
