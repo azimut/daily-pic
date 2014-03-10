@@ -73,6 +73,7 @@ while getopts ':giafs' opt; do
 	esac
 done
 
+mkdir -p pics # portability
 cd pics
 
 # referece: http://blog.yjl.im/2012/03/downloading-only-when-modified-using_23.html
