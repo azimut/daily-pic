@@ -80,5 +80,5 @@ cd pics
 if [[ ! -z $jpg ]]; then
 	pic_name=${jpg##*/}
 	wget "$jpg" --server-response --timestamping --no-verbose --ignore-length
-	DISPLAY=:0.0 feh "${FEH_OPT}" "${pic_name}"
+	DISPLAY=:0.0 feh "${FEH_OPT}" "${PWD}${pic_name}"
 fi
