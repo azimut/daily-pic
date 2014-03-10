@@ -45,7 +45,7 @@ $ git clone 'https://github.com/azimut/daily-pic'
 Add the following crontab as root or using ```sudo``` (if you are using vixie-cron or if you know how to configure cron you might try to add this as user instead of root):
 ```
 # crontab -e
-*/10 * * * * su - usernamehere -c 'cd /home/usernamehere/projects/daily-pic; bash do.sh -a &>> pics/log.txt'
+0 */1 * * * su - usernamehere -c 'cd /home/usernamehere/projects/daily-pic; bash do.sh -a &>> pics/log.txt'
 ```
 
 TODO

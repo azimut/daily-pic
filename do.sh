@@ -23,6 +23,7 @@ http.get.url.netgeo(){
 
 }
 
+# Alternative: http://goes.gsfc.nasa.gov/goescolor/goeseast/overview2/color_lrg/latestfull.jpg
 http.get.url.fvalk(){
 	local BASE_URL='http://www.fvalk.com/images/Day_image/?M=D'
 	local IMAGE_BASE_URL='http://www.fvalk.com/images/Day_image/'
