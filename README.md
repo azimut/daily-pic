@@ -1,7 +1,7 @@
 daily-pic
 =========
 
-Fetch the image of the day from
+Get and set the image of the day from different sites:
 
 * Nasa Image of the day
 * Nasa Astronomy Picture of the Day
@@ -9,12 +9,12 @@ Fetch the image of the day from
 * fvalk (satellite images of the earth)
 * Servicio Meteorologico Nacional Argentino
 
-Feel free to add you own :)
+Feel free to add your own source :)
 
 Usage
 -----
 
-Just pass a flag corresponding to the image you want to get.
+Pass the correspondent flag as argument to the script.
 For example, to get and set the wallpaper from nasa apod use the ```-a``` flag:
 
 ```
