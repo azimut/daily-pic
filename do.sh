@@ -54,8 +54,8 @@ http.get.url.smn.satopes(){
 }
 
 # Reference: http://awesome.naquadah.org/wiki/NASA_IOTD_Wallpaper
-# The Content-encoding of this server is not always the same, sometimes is gzipped and sometimes not.
-# That's why I am using some login to detect that and "base64" to store the gzip file in a variable.
+# The Content-Encoding returned by this server is not always the same, sometimes returns gzipped data and sometimes in plain text.
+# That's why I am using some logic to detect that and "base64" to store the gzip file in a variable.
 http.get.url.nasa.iotd(){
 	local BASE_URL='http://www.nasa.gov/rss/dyn/lg_image_of_the_day.rss'
 	local html_url=$(base64 <(wget --quiet -O - --header='Accept-Encoding: gzip' "${BASE_URL}"))
