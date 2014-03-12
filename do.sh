@@ -2,6 +2,19 @@
 
 FEH_OPT='--bg-max'
 
+help.usage(){
+    cat <<EOF
+Usage: $0 [-giafsh]
+   -g National Geographic Image of the day
+   -a NASA Astronomy Picture Of the Day (APOD)
+   -i NASA Image of the Day
+   -f FVALK satellite image of the earth updated each 3 hours
+   -s SMN Servicio Metereologico Nacional Argentino - Imagen de radar
+EOF
+}
+
+[[ $# -ne 1 ]] && { echo "uError: Missing argument."; help.usage; exit 1; }
+
 # https://gist.github.com/JoshSchreuder/882666
 http.get.url.nasa.apod(){
         local BASE_URL='http://apod.nasa.gov/apod/'
@@ -62,14 +75,15 @@ http.get.url.nasa.iotd(){
 }
 
 # this will need to be replaced someday with a more custom logic that getopts ~azimut
-while getopts ':giafs' opt; do
+while getopts ':hgiafs' opt; do
 	case $opt in
 		g) jpg=$(http.get.url.netgeo) ;;
 		i) jpg=$(http.get.url.nasa.iotd) ;;
 		a) jpg=$(http.get.url.nasa.apod) ;;
 		f) jpg=$(http.get.url.fvalk) ;;
 		s) jpg=$(http.get.url.smn.satopes); FEH_OPT='--bg-fill';;
-		*) echo 'uError: option not supported. ';;
+        h) help.usage;;
+		*) echo 'uError: option not supported. '; help.usage; exit 1;;
 	esac
 done
 
