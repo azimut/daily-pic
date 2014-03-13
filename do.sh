@@ -10,10 +10,34 @@ Usage: $0 [-giafsh]
    -i NASA Image of the Day
    -f FVALK satellite image of the earth updated each 3 hours
    -s SMN Servicio Metereologico Nacional Argentino - Imagen de radar
+   -c images from 4chan/4walled.cc
 EOF
 }
 
 [[ $# -ne 1 ]] && { echo "uError: Missing argument."; help.usage; exit 1; }
+
+http.get.url.4walled(){
+	# board=
+	#	1 -- /w/   -- Anime/Wallpapers
+	#	2 -- /wg/  -- Wallpapers/General
+	#	3 -- 7chan -- 7chan
+	#	4 -- /hr/  -- NSFW/High Resolution
+	#         --       -- ALL
+	local board=
+
+	# sfw=
+	#	-1 -- unrated
+	#	 0 -- Safe for work
+	#        1 -- Borderline
+	#        2 -- NSFW
+	local sfw=0
+
+	local BASE_URL=$(wget -q -O- 'http://4walled.cc/search.php?tags=&board'${board}'=&width_aspect=1024x133&searchstyle=larger&sfw='"${sfw}"'&search=random' | fgrep -m1 '<li class' | cut -f4 -d"'")
+	local image_url=$(wget -O- -q "${BASE_URL}" | fgrep -m1 'href="http' | cut -f2 -d'"')
+	if [[ ! -z $image_url ]]; then
+		echo "${image_url}"
+	fi
+}
 
 # https://gist.github.com/JoshSchreuder/882666
 http.get.url.nasa.apod(){
@@ -75,14 +99,15 @@ http.get.url.nasa.iotd(){
 }
 
 # this will need to be replaced someday with a more custom logic that getopts ~azimut
-while getopts ':hgiafs' opt; do
+while getopts ':hcgiafs' opt; do
 	case $opt in
 		g) jpg=$(http.get.url.netgeo) ;;
 		i) jpg=$(http.get.url.nasa.iotd) ;;
 		a) jpg=$(http.get.url.nasa.apod) ;;
 		f) jpg=$(http.get.url.fvalk) ;;
 		s) jpg=$(http.get.url.smn.satopes); FEH_OPT='--bg-fill';;
-        h) help.usage;;
+		c) jpg=$(http.get.url.4walled);     FEH_OPT='--bg-fill';;
+        	h) help.usage;;
 		*) echo 'uError: option not supported. '; help.usage; exit 1;;
 	esac
 done
