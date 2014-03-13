@@ -8,6 +8,7 @@ Get and set the image of the day from different sites:
 * National Geographic
 * fvalk (satellite images of the earth)
 * Servicio Meteorologico Nacional Argentino
+* 4walled (4chan/7chan)
 
 Feel free to add your own source :)
 
