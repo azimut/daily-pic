@@ -16,6 +16,7 @@ EOF
 
 [[ $# -ne 1 ]] && { echo "uError: Missing argument."; help.usage; exit 1; }
 
+# reference: https://gist.github.com/alexander-yakushev/5546599
 http.get.url.4walled(){
 	# board=
 	#	1 -- /w/   -- Anime/Wallpapers
