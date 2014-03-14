@@ -14,7 +14,24 @@ Usage: $0 [-giafsh]
 EOF
 }
 
-[[ $# -ne 1 ]] && { echo "uError: Missing argument."; help.usage; exit 1; }
+echoerr() { echo "$@" 1>&2; }
+
+check_in_path(){
+    local cmd=$1
+    hash "$cmd" &>/dev/null || {
+        echoerr "uError: command \"$cmd\" not found in \$PATH, please add it or install it..."
+        exit 1
+    }
+}
+
+check_in_path 'feh'
+check_in_path 'wget'
+
+[[ $# -ne 1 ]] && { 
+    echoerr "uError: Missing argument."
+    help.usage
+    exit 1
+}
 
 # reference: https://gist.github.com/alexander-yakushev/5546599
 http.get.url.4walled(){
@@ -82,6 +99,7 @@ http.get.url.smn.satopes(){
 # The Content-Encoding returned by this server is not always the same, sometimes returns gzipped data and sometimes in plain text.
 # That's why I am using some logic to detect that and "base64" to store the gzip file in a variable.
 http.get.url.nasa.iotd(){
+    check_in_path 'base64'
 	local BASE_URL='http://www.nasa.gov/rss/dyn/lg_image_of_the_day.rss'
 	local html_url=$(base64 <(wget --quiet -O - --header='Accept-Encoding: gzip' "${BASE_URL}"))
 	local ftype=$(echo "$html_url" | base64 --decode | file -)
@@ -108,7 +126,7 @@ while getopts ':hcgiafs' opt; do
 		f) jpg=$(http.get.url.fvalk); FEH_OPT='--bg-max' ;;
 		s) jpg=$(http.get.url.smn.satopes);;
 		c) jpg=$(http.get.url.4walled);;
-        	h) help.usage;;
+       	h) help.usage;;
 		*) echo 'uError: option not supported. '; help.usage; exit 1;;
 	esac
 done
