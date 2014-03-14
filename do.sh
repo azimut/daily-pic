@@ -33,8 +33,7 @@ http.get.url.4walled(){
 	#        2 -- NSFW
 	local sfw=0
 
-	local URL='http://4walled.cc/search.php?tags=&board'${board}'=&width_aspect=1024x133&searchstyle=larger&sfw='"${sfw}"'&search=random
-'
+	local URL='http://4walled.cc/search.php?tags=&board'${board}'=&width_aspect=1024x133&searchstyle=larger&sfw='"${sfw}"'&search=random'
 	local BASE_URL=$(wget -q -O- "${URL}" | fgrep -m1 '<li class' | cut -f4 -d"'")
 	local image_url=$(wget -O- -q "${BASE_URL}" | fgrep -m1 'href="http' | cut -f2 -d'"')
 	if [[ ! -z $image_url ]]; then
