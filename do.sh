@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FEH_OPT='--bg-max'
+FEH_OPT='--bg-fill'
 
 help.usage(){
     cat <<EOF
@@ -105,9 +105,9 @@ while getopts ':hcgiafs' opt; do
 		g) jpg=$(http.get.url.netgeo) ;;
 		i) jpg=$(http.get.url.nasa.iotd) ;;
 		a) jpg=$(http.get.url.nasa.apod) ;;
-		f) jpg=$(http.get.url.fvalk) ;;
-		s) jpg=$(http.get.url.smn.satopes); FEH_OPT='--bg-fill';;
-		c) jpg=$(http.get.url.4walled);     FEH_OPT='--bg-fill';;
+		f) jpg=$(http.get.url.fvalk); FEH_OPT='--bg-max' ;;
+		s) jpg=$(http.get.url.smn.satopes);;
+		c) jpg=$(http.get.url.4walled);;
         	h) help.usage;;
 		*) echo 'uError: option not supported. '; help.usage; exit 1;;
 	esac
