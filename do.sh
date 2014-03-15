@@ -1,6 +1,7 @@
 #!/bin/bash
 
 FEH_OPT='--bg-fill'
+USER_AGENT='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
 
 help.usage(){
     cat <<EOF
@@ -11,6 +12,8 @@ Usage: $0 [-giafsh]
    -f FVALK satellite image of the earth updated each 3 hours
    -s SMN Servicio Metereologico Nacional Argentino - Imagen de radar
    -c images from 4chan/4walled.cc
+   -m monterey nexsat
+   -n nasa goes
 EOF
 }
 
@@ -156,7 +159,7 @@ cd pics
 if [[ ! -z $jpg ]]; then
 	pic_name=${jpg##*/}
 	filename="${PWD}/${pic_name}"
-	wget "$jpg" --server-response --timestamping --no-verbose --ignore-length
+	wget "${jpg}" --user-agent="'${USER_AGENT}'" --server-response --timestamping --no-verbose --ignore-length
 	DISPLAY=:0.0 feh "${FEH_OPT}" "${filename}"
 	echo
 	echo 'URL:  '"${jpg}"
