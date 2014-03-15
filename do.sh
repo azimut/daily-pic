@@ -33,6 +33,15 @@ check_in_path 'wget'
     exit 1
 }
 
+http.get.url.nrlmry.nexsat(){
+    local BASE_URL='http://www.nrlmry.navy.mil/nexsat-bin/nexsat.cgi?BASIN=CONUS&SUB_BASIN=focus_regions&AGE=Archive&REGION=SouthAmerica&SECTOR=Overview&PRODUCT=vis_ir_background&SUB_PRODUCT=goes&PAGETYPE=static&DISPLAY=single&SIZE=Thumb&PATH=SouthAmerica/Overview/vis_ir_background/goes&&buttonPressed=Archive'
+    local IMAGE_BASE_URL='http://www.nrlmry.navy.mil/htdocs_dyn_apache/PUBLIC/nexsat/thumbs/full_size/SouthAmerica/Overview/vis_ir_background/goes/'
+    local image_url=$(wget -q -O- "$BASE_URL" | fgrep -m1 option | cut -f2 -d'"')
+    if [[ ! -z $image_url ]]; then
+        echo "${IMAGE_BASE_URL}"/"${image_url}"
+    fi
+}
+
 # reference: https://gist.github.com/alexander-yakushev/5546599
 http.get.url.4walled(){
 	# board=
@@ -118,7 +127,7 @@ http.get.url.nasa.iotd(){
 }
 
 # this will need to be replaced someday with a more custom logic that getopts ~azimut
-while getopts ':hcgiafs' opt; do
+while getopts ':hcgiafsm' opt; do
 	case $opt in
 		g) jpg=$(http.get.url.netgeo) ;;
 		i) jpg=$(http.get.url.nasa.iotd) ;;
@@ -126,7 +135,8 @@ while getopts ':hcgiafs' opt; do
 		f) jpg=$(http.get.url.fvalk); FEH_OPT='--bg-max' ;;
 		s) jpg=$(http.get.url.smn.satopes);;
 		c) jpg=$(http.get.url.4walled);;
-       	h) help.usage;;
+		m) jpg=$(http.get.url.nrlmry.nexsat);;
+		h) help.usage;;
 		*) echo 'uError: option not supported. '; help.usage; exit 1;;
 	esac
 done
