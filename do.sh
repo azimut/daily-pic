@@ -34,8 +34,10 @@ check_in_path 'wget'
 }
 
 http.get.url.nrlmry.nexsat(){
-    local BASE_URL='http://www.nrlmry.navy.mil/nexsat-bin/nexsat.cgi?BASIN=CONUS&SUB_BASIN=focus_regions&AGE=Archive&REGION=SouthAmerica&SECTOR=Overview&PRODUCT=vis_ir_background&SUB_PRODUCT=goes&PAGETYPE=static&DISPLAY=single&SIZE=Thumb&PATH=SouthAmerica/Overview/vis_ir_background/goes&&buttonPressed=Archive'
-    local IMAGE_BASE_URL='http://www.nrlmry.navy.mil/htdocs_dyn_apache/PUBLIC/nexsat/thumbs/full_size/SouthAmerica/Overview/vis_ir_background/goes/'
+    local region='SouthAmerica' # NW_Atlantic
+    local path='SouthAmerica/Overview' # NW_Atlantic/Caribbean
+    local BASE_URL='http://www.nrlmry.navy.mil/nexsat-bin/nexsat.cgi?BASIN=CONUS&SUB_BASIN=focus_regions&AGE=Archive&REGION='"${region}"'&SECTOR=Overview&PRODUCT=vis_ir_background&SUB_PRODUCT=goes&PAGETYPE=static&DISPLAY=single&SIZE=Thumb&PATH='"${path}"'/vis_ir_background/goes&&buttonPressed=Archive'
+    local IMAGE_BASE_URL='http://www.nrlmry.navy.mil/htdocs_dyn_apache/PUBLIC/nexsat/thumbs/full_size/'"${path}"'/vis_ir_background/goes/'
     local image_url=$(wget -q -O- "$BASE_URL" | fgrep -m1 option | cut -f2 -d'"')
     if [[ ! -z $image_url ]]; then
         echo "${IMAGE_BASE_URL}"/"${image_url}"
@@ -87,7 +89,12 @@ http.get.url.netgeo(){
 	fi
 }
 
-# Alternative: http://goes.gsfc.nasa.gov/goescolor/goeseast/overview2/color_lrg/latestfull.jpg
+http.get.url.nasa.goes(){
+	local BASE_URL='http://goes.gsfc.nasa.gov/goescolor/goeseast/overview2/color_lrg'
+	local image_url="${BASE_URL}"/latestfull.jpg
+	echo "${image_url}"
+}
+
 http.get.url.fvalk(){
 	local BASE_URL='http://www.fvalk.com/images/Day_image/?M=D'
 	local IMAGE_BASE_URL='http://www.fvalk.com/images/Day_image/'
@@ -127,7 +134,7 @@ http.get.url.nasa.iotd(){
 }
 
 # this will need to be replaced someday with a more custom logic that getopts ~azimut
-while getopts ':hcgiafsm' opt; do
+while getopts ':hcgiafsmn' opt; do
 	case $opt in
 		g) jpg=$(http.get.url.netgeo) ;;
 		i) jpg=$(http.get.url.nasa.iotd) ;;
@@ -136,6 +143,7 @@ while getopts ':hcgiafsm' opt; do
 		s) jpg=$(http.get.url.smn.satopes);;
 		c) jpg=$(http.get.url.4walled);;
 		m) jpg=$(http.get.url.nrlmry.nexsat);;
+		n) jpg=$(http.get.url.nasa.goes); FEH_OPT='--bg-max';;
 		h) help.usage;;
 		*) echo 'uError: option not supported. '; help.usage; exit 1;;
 	esac
