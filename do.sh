@@ -137,6 +137,10 @@ cd pics
 # referece: http://blog.yjl.im/2012/03/downloading-only-when-modified-using_23.html
 if [[ ! -z $jpg ]]; then
 	pic_name=${jpg##*/}
+	filename="${PWD}/${pic_name}"
 	wget "$jpg" --server-response --timestamping --no-verbose --ignore-length
-	DISPLAY=:0.0 feh "${FEH_OPT}" "${PWD}/${pic_name}"
+	DISPLAY=:0.0 feh "${FEH_OPT}" "${filename}"
+	echo
+	echo 'URL:  '"${jpg}"
+	echo 'FILE: '"${filename}"
 fi
