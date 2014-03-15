@@ -145,7 +145,7 @@ while getopts ':hcgiafsmn' opt; do
 		m) jpg=$(http.get.url.nrlmry.nexsat);;
 		n) jpg=$(http.get.url.nasa.goes); FEH_OPT='--bg-max';;
 		h) help.usage;;
-		*) echo 'uError: option not supported. '; help.usage; exit 1;;
+		*) echoerr 'uError: option not supported. '; help.usage; exit 1;;
 	esac
 done
 
