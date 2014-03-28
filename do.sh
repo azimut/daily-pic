@@ -1,7 +1,7 @@
 #!/bin/bash
 
 FEH_OPT='--bg-fill'
-USER_AGENT='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
+WGET_OPT="--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36"
 
 help.usage(){
     cat <<EOF
@@ -41,7 +41,7 @@ http.get.url.nrlmry.nexsat(){
     local path='SouthAmerica/Overview' # NW_Atlantic/Caribbean
     local BASE_URL='http://www.nrlmry.navy.mil/nexsat-bin/nexsat.cgi?BASIN=CONUS&SUB_BASIN=focus_regions&AGE=Archive&REGION='"${region}"'&SECTOR=Overview&PRODUCT=vis_ir_background&SUB_PRODUCT=goes&PAGETYPE=static&DISPLAY=single&SIZE=Thumb&PATH='"${path}"'/vis_ir_background/goes&&buttonPressed=Archive'
     local IMAGE_BASE_URL='http://www.nrlmry.navy.mil/htdocs_dyn_apache/PUBLIC/nexsat/thumbs/full_size/'"${path}"'/vis_ir_background/goes/'
-    local image_url=$(wget -q -O- "$BASE_URL" | fgrep -m1 option | cut -f2 -d'"')
+    local image_url=$(wget "${WGET_OPT}" -q -O- "$BASE_URL" | fgrep -m1 option | cut -f2 -d'"')
     if [[ ! -z $image_url ]]; then
         echo "${IMAGE_BASE_URL}"/"${image_url}"
     fi
@@ -65,8 +65,8 @@ http.get.url.4walled(){
 	local sfw=0
 
 	local URL='http://4walled.cc/search.php?tags=&board'${board}'=&width_aspect=1024x133&searchstyle=larger&sfw='"${sfw}"'&search=random'
-	local BASE_URL=$(wget -q -O- "${URL}" | fgrep -m1 '<li class' | cut -f4 -d"'")
-	local image_url=$(wget -O- -q "${BASE_URL}" | fgrep -m1 'href="http' | cut -f2 -d'"')
+	local BASE_URL=$(wget "${WGET_OPT}" -q -O- "${URL}" | fgrep -m1 '<li class' | cut -f4 -d"'")
+	local image_url=$(wget "${WGET_OPT}" -O- -q "${BASE_URL}" | fgrep -m1 'href="http' | cut -f2 -d'"')
 	if [[ ! -z $image_url ]]; then
 		echo "${image_url}"
 	fi
@@ -76,7 +76,7 @@ http.get.url.4walled(){
 http.get.url.nasa.apod(){
         local BASE_URL='http://apod.nasa.gov/apod/'
 	local IMAGE_BASE_URL=$BASE_URL
-	local image_url=$(wget --quiet -O - "${BASE_URL}" | fgrep -m1 jpg | cut -f2 -d'"')
+	local image_url=$(wget "${WGET_OPT}" --quiet -O - "${BASE_URL}" | fgrep -m1 jpg | cut -f2 -d'"')
 	if [[ ! -z $image_url ]]; then
 		echo "${IMAGE_BASE_URL}""${image_url}"
 	fi
@@ -86,7 +86,7 @@ http.get.url.nasa.apod(){
 http.get.url.netgeo(){
 	local BASE_URL='http://photography.nationalgeographic.com/photography/photo-of-the-day/'
 	local IMAGE_BASE_URL='images.nationalgeographic.com'
-	local image_url=$(wget --quiet -O - "${BASE_URL}" | egrep -o -m1 "${IMAGE_BASE_URL}"'/.*[0-9]*x[0-9]*.jpg')
+	local image_url=$(wget "${WGET_OPT}" --quiet -O - "${BASE_URL}" | egrep -o -m1 "${IMAGE_BASE_URL}"'/.*[0-9]*x[0-9]*.jpg')
 	if [[ ! -z $image_url ]]; then
 		echo 'http://'"${image_url}"
 	fi
@@ -102,7 +102,7 @@ http.get.url.fvalk(){
 	local BASE_URL='http://www.fvalk.com/images/Day_image/?M=D'
 	local IMAGE_BASE_URL='http://www.fvalk.com/images/Day_image/'
 	local dust='GOES-12'
-	local image_url=$(wget --quiet -O - "${BASE_URL}" | grep -m1 "${dust}" | cut -f6 -d'"')
+	local image_url=$(wget "${WGET_OPT}" --quiet -O - "${BASE_URL}" | grep -m1 "${dust}" | cut -f6 -d'"')
 	if [[ ! -z $image_url ]]; then
 		echo "${IMAGE_BASE_URL}""${image_url}"
 	fi
@@ -120,7 +120,7 @@ http.get.url.smn.satopes(){
 http.get.url.nasa.iotd(){
     check_in_path 'base64'
 	local BASE_URL='http://www.nasa.gov/rss/dyn/lg_image_of_the_day.rss'
-	local html_url=$(base64 <(wget --quiet -O - --header='Accept-Encoding: gzip' "${BASE_URL}"))
+	local html_url=$(base64 <(wget "${WGET_OPT}" --quiet -O - --header='Accept-Encoding: gzip' "${BASE_URL}"))
 	local ftype=$(echo "$html_url" | base64 --decode | file -)
 	
 	if [[ $ftype == *gzip* ]]; then
@@ -159,7 +159,7 @@ cd pics
 if [[ ! -z $jpg ]]; then
 	pic_name=${jpg##*/}
 	filename="${PWD}/${pic_name}"
-	wget "${jpg}" --user-agent="'${USER_AGENT}'" --server-response --timestamping --no-verbose --ignore-length
+	wget "${WGET_OPT}" "${jpg}" --server-response --timestamping --no-verbose --ignore-length
 	DISPLAY=:0.0 feh "${FEH_OPT}" "${filename}"
 	echo
 	echo 'URL:  '"${jpg}"
