@@ -73,6 +73,7 @@ http.get.url.4walled(){
 	fi
 }
 
+# Reference: https://github.com/dmacpherson/py-interfacelift-downloader
 http.get.url.interfacelift(){
 	local BASE_URL='http://interfacelift.com/wallpaper/downloads/random/fullscreen/1600x1200/'
 	local IMAGE_BASE_URL='http://interfacelift.com'
