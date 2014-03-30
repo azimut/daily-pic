@@ -11,6 +11,7 @@ Get and set the image of the day from different sites:
 * 4walled (4chan/7chan)
 * interfacelift
 * Nasa goes
+* wallbase
 
 Feel free to add your own source :)
 

@@ -11,10 +11,11 @@ Usage: $0 [-giafsh]
    -i NASA Image of the Day
    -f FVALK satellite image of the earth updated each 3 hours
    -s SMN Servicio Metereologico Nacional Argentino - Imagen de radar
-   -c images from 4chan/4walled.cc
+   -c images from 4chan/4walled.cc (rand)
    -m monterey nexsat
    -n nasa goes
-   -t interfacelift
+   -t interfacelift (rand)
+   -w wallbase (rand)
 EOF
 }
 
@@ -35,6 +36,16 @@ check_in_path 'wget'
     echoerr "uError: Missing argument."
     help.usage
     exit 1
+}
+
+http.get.url.wallbase(){
+    local BASE_URL='http://wallbase.cc/random'
+    local image_url=$(wget "${WGET_OPT}" -q -O- "${BASE_URL}" | egrep -o 'http://thumbs.wallbase.cc//[[:alpha:]-]+/thumb-[0-9]+.jpg' | shuf -n1)
+    image_url=${image_url/thumb-/wallpaper-}
+    image_url=${image_url/thumbs/wallpapers}
+    if [[ ! -z $image_url ]]; then
+        echo "${image_url}"
+    fi
 }
 
 http.get.url.nrlmry.nexsat(){
@@ -148,7 +159,7 @@ http.get.url.nasa.iotd(){
 }
 
 # this will need to be replaced someday with a more custom logic that getopts ~azimut
-while getopts ':hcgiafsmnt' opt; do
+while getopts ':hcgiafsmntw' opt; do
 	case $opt in
 		g) jpg=$(http.get.url.netgeo) ;;
 		i) jpg=$(http.get.url.nasa.iotd) ;;
@@ -159,6 +170,7 @@ while getopts ':hcgiafsmnt' opt; do
 		m) jpg=$(http.get.url.nrlmry.nexsat);;
 		n) jpg=$(http.get.url.nasa.goes); FEH_OPT='--bg-max';;
 		t) jpg=$(http.get.url.interfacelift);;
+		w) jpg=$(http.get.url.wallbase);;
 		h) help.usage;;
 		*) echoerr 'uError: option not supported. '; help.usage; exit 1;;
 	esac
