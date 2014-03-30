@@ -1,7 +1,7 @@
 #!/bin/bash
 
 FEH_OPT='--bg-fill'
-WGET_OPT="--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36"
+WGET_OPT='--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
 
 help.usage(){
     cat <<EOF
@@ -14,6 +14,7 @@ Usage: $0 [-giafsh]
    -c images from 4chan/4walled.cc
    -m monterey nexsat
    -n nasa goes
+   -t interfacelift
 EOF
 }
 
@@ -69,6 +70,15 @@ http.get.url.4walled(){
 	local image_url=$(wget "${WGET_OPT}" -O- -q "${BASE_URL}" | fgrep -m1 'href="http' | cut -f2 -d'"')
 	if [[ ! -z $image_url ]]; then
 		echo "${image_url}"
+	fi
+}
+
+http.get.url.interfacelift(){
+	local BASE_URL='http://interfacelift.com/wallpaper/downloads/random/fullscreen/1600x1200/'
+	local IMAGE_BASE_URL='http://interfacelift.com'
+	local image_url=$(wget "${WGET_OPT}" --quiet -O - "${BASE_URL}" | egrep -o 'a href="/wallpaper/[[:alnum:]]+/[[:alnum:]_]+.jpg' | cut -f2 -d'"' | shuf -n1)
+	if [[ ! -z $image_url ]]; then
+		echo "${IMAGE_BASE_URL}""${image_url}"
 	fi
 }
 
@@ -137,7 +147,7 @@ http.get.url.nasa.iotd(){
 }
 
 # this will need to be replaced someday with a more custom logic that getopts ~azimut
-while getopts ':hcgiafsmn' opt; do
+while getopts ':hcgiafsmnt' opt; do
 	case $opt in
 		g) jpg=$(http.get.url.netgeo) ;;
 		i) jpg=$(http.get.url.nasa.iotd) ;;
@@ -147,6 +157,7 @@ while getopts ':hcgiafsmn' opt; do
 		c) jpg=$(http.get.url.4walled);;
 		m) jpg=$(http.get.url.nrlmry.nexsat);;
 		n) jpg=$(http.get.url.nasa.goes); FEH_OPT='--bg-max';;
+		t) jpg=$(http.get.url.interfacelift);;
 		h) help.usage;;
 		*) echoerr 'uError: option not supported. '; help.usage; exit 1;;
 	esac
