@@ -14,6 +14,7 @@ Get and set the image of the day from different sites:
 * wallbase
 * bing(iod)
 * reddit(wallpaper/imgur)
+* deviantart (iod/24h)
 
 Feel free to add your own source :)
 

@@ -41,6 +41,7 @@ check_in_path 'wget'
     exit 1
 }
 
+# Reference: https://github.com/datagutt/wallscrape
 http.get.url.deviantart(){
     local BASE_URL='http://browse.deviantart.com/customization/wallpaper/'
     local image_url=$(
