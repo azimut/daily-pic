@@ -12,6 +12,8 @@ Get and set the image of the day from different sites:
 * interfacelift
 * Nasa goes
 * wallbase
+* bing(iod)
+* reddit(wallpaper/imgur)
 
 Feel free to add your own source :)
 

@@ -5,7 +5,7 @@ WGET_OPT='--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML
 
 help.usage(){
     cat <<EOF
-Usage: $0 [-giafsh]
+Usage: $0 [-hcgiafsmntwb]
    -g National Geographic Image of the day
    -a NASA Astronomy Picture Of the Day (APOD)
    -i NASA Image of the Day
@@ -16,6 +16,8 @@ Usage: $0 [-giafsh]
    -n nasa goes
    -t interfacelift (rand)
    -w wallbase (rand)
+   -b bing (iod)
+   -r reddit (wallpaper/imgur)
 EOF
 }
 
@@ -36,6 +38,25 @@ check_in_path 'wget'
     echoerr "uError: Missing argument."
     help.usage
     exit 1
+}
+
+# Reference: https://github.com/wmmc/Wallpaper-Downloader
+http.get.url.reddit(){
+    local BASE_URL='http://www.reddit.com/r/wallpapers/.json'
+    local image_url=$(wget "${WGET_OPT}" -q -O- "${BASE_URL}" | tr ' ' '\n' | egrep -o 'http://i.imgur.com/[[:alnum:]]+\.(png|jpg)' | shuf -n1)
+    if [[ ! -z ${image_url} ]]; then
+        echo "${image_url}"
+    fi
+}
+
+# Reference: https://github.com/tsia/bing-wallpaper
+http.get.url.bing(){
+    local BASE_URL='http://www.bing.com/HPImageArchive.aspx?format=js&n=1&pid=hp&video=0'
+    local IMAGE_BASE_URL='http://www.bing.com'
+    local image_url=$(wget "${WGET_OPT}" -q -O- "${BASE_URL}" | sed -E 's/.*"url":"([^"]+)"[,\}].*/\1/g' )
+    if [[ ! -z ${image_url} ]]; then
+        echo "${IMAGE_BASE_URL}""${image_url}"
+    fi
 }
 
 http.get.url.wallbase(){
@@ -159,7 +180,7 @@ http.get.url.nasa.iotd(){
 }
 
 # this will need to be replaced someday with a more custom logic that getopts ~azimut
-while getopts ':hcgiafsmntw' opt; do
+while getopts ':hcgiafsmntwbr' opt; do
 	case $opt in
 		g) jpg=$(http.get.url.netgeo) ;;
 		i) jpg=$(http.get.url.nasa.iotd) ;;
@@ -171,6 +192,8 @@ while getopts ':hcgiafsmntw' opt; do
 		n) jpg=$(http.get.url.nasa.goes); FEH_OPT='--bg-max';;
 		t) jpg=$(http.get.url.interfacelift);;
 		w) jpg=$(http.get.url.wallbase);;
+		b) jpg=$(http.get.url.bing);;
+		r) jpg=$(http.get.url.reddit);;
 		h) help.usage;;
 		*) echoerr 'uError: option not supported. '; help.usage; exit 1;;
 	esac
