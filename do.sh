@@ -5,7 +5,7 @@ WGET_OPT='--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML
 
 help.usage(){
     cat <<EOF
-Usage: $0 [-hcgiafsmntwbd]
+Usage: $0 [-hcgiafsmntwbdo]
    -g National Geographic Image of the day
    -a NASA Astronomy Picture Of the Day (APOD)
    -i NASA Image of the Day
@@ -19,6 +19,7 @@ Usage: $0 [-hcgiafsmntwbd]
    -b bing (iod)
    -r reddit (wallpaper/imgur)
    -d deviantart (rand/24h)
+   -o world dienet
 EOF
 }
 
@@ -44,6 +45,13 @@ check_in_path 'wget'
 # a little bit cheap, but it works ...
 get.array.rand(){
     echo "$@" | tr ' ' '\n' | shuf -n1
+}
+
+# Reference: https://github.com/andrewhood125/realtime-earth-wallpaper
+http.get.url.dienet.world(){
+    local BASE_URL='http://static.die.net/earth/mercator'
+    local image_url="${BASE_URL}"/'1600.jpg'
+    echo "${image_url}"
 }
 
 # Reference: https://github.com/datagutt/wallscrape
@@ -261,7 +269,7 @@ http.get.url.nasa.iotd(){
 }
 
 # this will need to be replaced someday with a more custom logic that getopts ~azimut
-while getopts ':hcgiafsmntwbrd' opt; do
+while getopts ':hcgiafsmntwbrdo' opt; do
     case $opt in
         g) jpg=$(http.get.url.natgeo) ;;
         i) jpg=$(http.get.url.nasa.iotd) ;;
@@ -276,6 +284,7 @@ while getopts ':hcgiafsmntwbrd' opt; do
         b) jpg=$(http.get.url.bing);;
         r) jpg=$(http.get.url.reddit);;
         d) jpg=$(http.get.url.deviantart);;
+	o) jpg=$(http.get.url.dienet.world);;
         h) help.usage;;
         *) echoerr 'uError: option not supported. '; help.usage; exit 1;;
     esac
