@@ -100,10 +100,14 @@ http.get.url.bing(){
     fi
 }
 
+# https://github.com/jabbalaci/Wallpaper-Downloader-and-Rotator-for-Gnome
 http.get.url.wallbase(){
     local -a BASE_URL_ARRAY
+    #BASE_URL_ARRAY+=('http://wallbase.cc/random')
     BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=8135')  # outer-space
     BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=11544') # cyberpunk
+    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=41408') # mandelbrot
+    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=17756') # historic
 
     local BASE_URL=$(get.array.rand ${BASE_URL_ARRAY[@]})
 
@@ -147,8 +151,8 @@ http.get.url.4walled(){
     # sfw=
     #	-1 -- unrated
     #	 0 -- Safe for work
-    #        1 -- Borderline
-    #        2 -- NSFW
+    #    1 -- Borderline
+    #    2 -- NSFW
     local sfw=0
     
     local URL='http://4walled.cc/search.php?tags=&board'${board}'=&width_aspect=1024x133&searchstyle=larger&sfw='"${sfw}"'&search=random'
