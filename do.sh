@@ -41,12 +41,29 @@ check_in_path 'wget'
     exit 1
 }
 
+# a little bit cheap, but it works ...
+get.array.rand(){
+    echo "$@" | tr ' ' '\n' | shuf -n1
+}
+
 # Reference: https://github.com/datagutt/wallscrape
 http.get.url.deviantart(){
-    local BASE_URL='http://browse.deviantart.com/customization/wallpaper/'
+    local -a BASE_URL_ARRAY
+    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/scifi/')        # !!
+    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/3d/')
+    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/abstract/')
+    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/fantasy/')
+    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/fractals/')     # !!
+    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/widescreen/')   # !!
+    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/scenery/')      # !!
+    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/minimalistic/') # !!
+    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/technical/')    # !!
+
+    local BASE_URL=$(get.array.rand ${BASE_URL_ARRAY[@]})
+
     local image_url=$(
         wget "${WGET_OPT}" -q -O- "${BASE_URL}" | 
-        egrep -o 'data-src="http://[[:alnum:]]+\.deviantart\.net/[[:alnum:]]+/200H/.+/.+/.+/.+/.+/.+\.png"' | 
+        egrep -o 'data-src="http://[[:alnum:]]+\.deviantart\.net/[[:alnum:]]+/200H/.+/.+/.+/.+/.+/.+\.(png|jpg|jpeg)"' | 
         cut -f2 -d'"' | 
         shuf -n1
     )
@@ -84,7 +101,12 @@ http.get.url.bing(){
 }
 
 http.get.url.wallbase(){
-    local BASE_URL='http://wallbase.cc/random'
+    local -a BASE_URL_ARRAY
+    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=8135')  # outer-space
+    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=11544') # cyberpunk
+
+    local BASE_URL=$(get.array.rand ${BASE_URL_ARRAY[@]})
+
     local image_url=$(
         wget "${WGET_OPT}" -q -O- "${BASE_URL}" | 
 	egrep -o 'http://thumbs.wallbase.cc//[[:alpha:]-]+/thumb-[0-9]+.jpg' | 
