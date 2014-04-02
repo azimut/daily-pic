@@ -2,10 +2,12 @@
 
 FEH_OPT='--bg-fill'
 WGET_OPT='--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
+GETOPTS_ARGS='ecgiafsmntwbrdo'
+
 
 help.usage(){
     cat <<EOF
-Usage: $0 [-hcgiafsmntwbdo]
+Usage: $0 [-h${GETOPTS_ARGS}]
    -g National Geographic Image of the day
    -a NASA Astronomy Picture Of the Day (APOD)
    -i NASA Image of the Day
@@ -17,13 +19,15 @@ Usage: $0 [-hcgiafsmntwbdo]
    -t interfacelift (rand)
    -w wallbase (rand)
    -b bing (iod)
-   -r reddit (wallpaper/imgur)
+   -e reddit (wallpaper/imgur)
    -d deviantart (rand/24h)
    -o world dienet
+   -r random!
 EOF
 }
 
 echoerr() { echo "$@" 1>&2; }
+dtitle()  { echo -en '# '"$@"'\n\n' 1>&2; }
 
 check_in_path(){
     local cmd=$1
@@ -42,13 +46,22 @@ check_in_path 'wget'
     exit 1
 }
 
-# a little bit cheap, but it works ...
+# Description: takes an array as argument and returns a random element
+#              a little bit cheap, but it works ...
 get.array.rand(){
     echo "$@" | tr ' ' '\n' | shuf -n1
 }
 
+# Description: from the list of getopts flags returns a random one with the leading dash '-'
+#              it works...
+get.flag.rand(){
+      local nflag=$((RANDOM % ${#GETOPTS_ARGS} + 1))
+      echo -n '-'; echo "${GETOPTS_ARGS}" | cut -b"${nflag}"
+}
+
 # Reference: https://github.com/andrewhood125/realtime-earth-wallpaper
 http.get.url.dienet.world(){
+    dtitle 'dienet -  Image of earth'
     local BASE_URL='http://static.die.net/earth/mercator'
     local image_url="${BASE_URL}"/'1600.jpg'
     echo "${image_url}"
@@ -56,6 +69,7 @@ http.get.url.dienet.world(){
 
 # Reference: https://github.com/datagutt/wallscrape
 http.get.url.deviantart(){
+    dtitle 'deviantart - random wallpaper, from different topics'
     local -a BASE_URL_ARRAY
     BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/scifi/')        # !!
     BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/3d/')
@@ -83,6 +97,7 @@ http.get.url.deviantart(){
 
 # Reference: https://github.com/wmmc/Wallpaper-Downloader
 http.get.url.reddit(){
+    dtitle 'reddit - /r/wallpapers'
     local BASE_URL='http://www.reddit.com/r/wallpapers/.json'
     local image_url=$(
         wget "${WGET_OPT}" -q -O- "${BASE_URL}" | 
@@ -97,6 +112,7 @@ http.get.url.reddit(){
 
 # Reference: https://github.com/tsia/bing-wallpaper
 http.get.url.bing(){
+    dtitle 'bing -  image of the day'
     local BASE_URL='http://www.bing.com/HPImageArchive.aspx?format=js&n=1&pid=hp&video=0'
     local IMAGE_BASE_URL='http://www.bing.com'
     local image_url=$(
@@ -110,18 +126,25 @@ http.get.url.bing(){
 
 # https://github.com/jabbalaci/Wallpaper-Downloader-and-Rotator-for-Gnome
 http.get.url.wallbase(){
+    dtitle 'wallbase.cc - random wallpaper, from different topics'
     local -a BASE_URL_ARRAY
     #BASE_URL_ARRAY+=('http://wallbase.cc/random')
     BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=8135')  # outer-space
     BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=11544') # cyberpunk
     BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=41408') # mandelbrot
     BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=17756') # historic
+    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=12637') # maps
+    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=20118') # manga
+    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=8383')  # dc comics
+    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=44153') # vertigo comics
+    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=8208')  # cityscapes
+    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=8023')  # landscapes
 
     local BASE_URL=$(get.array.rand ${BASE_URL_ARRAY[@]})
 
     local image_url=$(
         wget "${WGET_OPT}" -q -O- "${BASE_URL}" | 
-	egrep -o 'http://thumbs.wallbase.cc//[[:alpha:]-]+/thumb-[0-9]+.jpg' | 
+	egrep -o 'http://thumbs.wallbase.cc//[[:alpha:]-]+/thumb-[0-9]+.(jpg|png|jpeg)' | 
 	shuf -n1
     )
     image_url=${image_url/thumb-/wallpaper-}
@@ -132,6 +155,7 @@ http.get.url.wallbase(){
 }
 
 http.get.url.nrlmry.nexsat(){
+    dtitle 'nrlmry - Image of earth'
     local region='SouthAmerica' # NW_Atlantic
     local path='SouthAmerica/Overview' # NW_Atlantic/Caribbean
     local BASE_URL='http://www.nrlmry.navy.mil/nexsat-bin/nexsat.cgi?BASIN=CONUS&SUB_BASIN=focus_regions&AGE=Archive&REGION='"${region}"'&SECTOR=Overview&PRODUCT=vis_ir_background&SUB_PRODUCT=goes&PAGETYPE=static&DISPLAY=single&SIZE=Thumb&PATH='"${path}"'/vis_ir_background/goes&&buttonPressed=Archive'
@@ -148,6 +172,7 @@ http.get.url.nrlmry.nexsat(){
 
 # reference: https://gist.github.com/alexander-yakushev/5546599
 http.get.url.4walled(){
+    dtitle '4walled - random wallpaper'
     # board=
     #	1 -- /w/   -- Anime/Wallpapers
     #	2 -- /wg/  -- Wallpapers/General
@@ -181,6 +206,7 @@ http.get.url.4walled(){
 
 # Reference: https://github.com/dmacpherson/py-interfacelift-downloader
 http.get.url.interfacelift(){
+    dtitle 'Interfacelift -  random wallpaper'
     local BASE_URL='http://interfacelift.com/wallpaper/downloads/random/fullscreen/1600x1200/'
     local IMAGE_BASE_URL='http://interfacelift.com'
     local image_url=$(
@@ -196,6 +222,7 @@ http.get.url.interfacelift(){
 
 # https://gist.github.com/JoshSchreuder/882666
 http.get.url.nasa.apod(){
+    dtitle 'NASA - Astronomy picture of the day'
     local BASE_URL='http://apod.nasa.gov/apod/'
     local IMAGE_BASE_URL=$BASE_URL
     local image_url=$(
@@ -210,6 +237,7 @@ http.get.url.nasa.apod(){
 
 # https://gist.github.com/JoshSchreuder/882668
 http.get.url.natgeo(){
+    dtitle 'Natgeo - Photo of the day'
     local BASE_URL='http://photography.nationalgeographic.com/photography/photo-of-the-day/'
     local IMAGE_BASE_URL='images.nationalgeographic.com'
     local image_url=$(
@@ -222,12 +250,14 @@ http.get.url.natgeo(){
 }
 
 http.get.url.nasa.goes(){
+    dtitle 'NASA goes -  Image of earth'
     local BASE_URL='http://goes.gsfc.nasa.gov/goescolor/goeseast/overview2/color_lrg'
     local image_url="${BASE_URL}"/latestfull.jpg
     echo "${image_url}"
 }
 
 http.get.url.fvalk(){
+    dtitle 'FVALK - Image of earth'
     local BASE_URL='http://www.fvalk.com/images/Day_image/?M=D'
     local IMAGE_BASE_URL='http://www.fvalk.com/images/Day_image/'
     local dust='GOES-12'
@@ -242,6 +272,7 @@ http.get.url.fvalk(){
 }
 
 http.get.url.smn.satopes(){
+    dtitle 'SMN - Servicio meteorologico nacional argentino'
     local BASE_URL='http://www.smn.gov.ar/pronos/imagenes'
     local image_url="${BASE_URL}"/satopes.jpg
     echo "${image_url}"
@@ -251,6 +282,7 @@ http.get.url.smn.satopes(){
 # The Content-Encoding returned by this server is not always the same, sometimes returns gzipped data and sometimes in plain text.
 # That's why I am using some logic to detect that and "base64" to store the gzip file in a variable.
 http.get.url.nasa.iotd(){
+    dtitle 'NASA Image of the day'
     check_in_path 'base64'
     local BASE_URL='http://www.nasa.gov/rss/dyn/lg_image_of_the_day.rss'
     local html_url=$(base64 <(wget "${WGET_OPT}" --quiet -O - --header='Accept-Encoding: gzip' "${BASE_URL}"))
@@ -268,23 +300,25 @@ http.get.url.nasa.iotd(){
     fi
 }
 
+
 # this will need to be replaced someday with a more custom logic that getopts ~azimut
-while getopts ':hcgiafsmntwbrdo' opt; do
+while getopts ':h'"${GETOPTS_ARGS}" opt; do
     case $opt in
         g) jpg=$(http.get.url.natgeo) ;;
         i) jpg=$(http.get.url.nasa.iotd) ;;
         a) jpg=$(http.get.url.nasa.apod) ;;
-        f) jpg=$(http.get.url.fvalk); FEH_OPT='--bg-max' ;;
-        s) jpg=$(http.get.url.smn.satopes);;
-        c) jpg=$(http.get.url.4walled);;
-        m) jpg=$(http.get.url.nrlmry.nexsat);;
         n) jpg=$(http.get.url.nasa.goes); FEH_OPT='--bg-max';;
+        f) jpg=$(http.get.url.fvalk); FEH_OPT='--bg-max' ;;
+	o) jpg=$(http.get.url.dienet.world);;
+        s) jpg=$(http.get.url.smn.satopes);;
+        m) jpg=$(http.get.url.nrlmry.nexsat);;
+        c) jpg=$(http.get.url.4walled);;
         t) jpg=$(http.get.url.interfacelift);;
         w) jpg=$(http.get.url.wallbase);;
         b) jpg=$(http.get.url.bing);;
-        r) jpg=$(http.get.url.reddit);;
+        e) jpg=$(http.get.url.reddit);;
         d) jpg=$(http.get.url.deviantart);;
-	o) jpg=$(http.get.url.dienet.world);;
+	r) ((OPTIND--)); set -- $(get.flag.rand);;
         h) help.usage;;
         *) echoerr 'uError: option not supported. '; help.usage; exit 1;;
     esac

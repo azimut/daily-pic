@@ -16,6 +16,7 @@ Get and set the image of the day from different sites:
 * reddit(wallpaper/imgur)
 * deviantart (iod/24h)
 * dienet world map
+* random option!
 
 Feel free to add your own source :)
 
