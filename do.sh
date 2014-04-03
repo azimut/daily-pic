@@ -55,7 +55,7 @@ get.array.rand(){
 # Description: from the list of getopts flags returns a random one with the leading dash '-'
 #              it works...
 get.flag.rand(){
-      local nflag=$((RANDOM % ${#GETOPTS_ARGS} + 1))
+      local nflag=$(( ${#GETOPTS_ARGS} * RANDOM / 32768 + 1))
       echo -n '-'; echo "${GETOPTS_ARGS}" | cut -b"${nflag}"
 }
 
