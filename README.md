@@ -22,6 +22,11 @@ Get and set the image of the day from different sites:
 
 Feel free to add your own source :)
 
+Example
+-------
+
+![result](http://i.imgur.com/V6oPqpS.gif "example")
+
 Usage
 -----
 
