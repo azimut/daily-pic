@@ -412,9 +412,18 @@ if [[ ! -z $jpg ]]; then
     filename="${PWD}/${pic_name}"
     
     curl -A "${USER_AGENT}" -k --dump-header - "${jpg}" -z "${filename}" -o "${filename}" -s -L 2>/dev/null
+    
+    if hash gnome-session &>/dev/null; then
+        check_in_path 'gsettings'
+        gsettings set org.gnome.desktop.background picture-uri file://"${filename}"
+    elif hash gnome-about &>/dev/null; then
+        check_in_path 'gconftool-2'
+        gconftool-2 -t str --set /desktop/gnome/background/picture_filename "${filename}"
+        gconftool-2 -t str --set /desktop/gnome/background/picture_options "scaled"
+    fi
 
     DISPLAY=:0.0 feh "${FEH_OPT}" "${filename}"
-    echo
+    
     echo 'URL:  '"${jpg}"
     echo 'FILE: '"${filename}"
 fi
