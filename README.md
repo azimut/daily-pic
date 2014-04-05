@@ -16,6 +16,8 @@ Get and set the image of the day from different sites:
 * reddit(wallpaper/imgur)
 * deviantart (iod/24h)
 * dienet world map
+* imgur albums
+* imgur subreddit
 * random option!
 
 Feel free to add your own source :)
@@ -28,16 +30,23 @@ For example, to get and set the wallpaper from nasa apod use the ```-a``` flag:
 
 ```
 $ bash do.sh -a
+# NASA - Astronomy picture of the day
+
   HTTP/1.1 200 OK
-  Date: Sun, 09 Mar 2014 20:23:40 GMT
   Server: WebServer/1.0
-  Last-Modified: Fri, 07 Mar 2014 00:10:31 GMT
-  ETag: "112c9e7-24f66a-4f3f914f74bc0"
+  Last-Modified: Thu, 03 Apr 2014 18:59:08 GMT
+  ETag: "7f1f5d-1707cf-4f627fefc3571"
   Accept-Ranges: bytes
-  Content-Length: 2422378
-  Connection: close
+  Keep-Alive: timeout=5, max=100
   Content-Type: image/jpeg
-2014-03-09 17:19:20 URL:http://apod.nasa.gov/apod/image/1403/marshole2_hirise_2560.jpg [2422378] -> "marshole2_hirise_2560.jpg" [1]
+  Connection: close     
+  Date: Sat, 05 Apr 2014 07:08:45 GMT
+  Age: 11018  
+  Content-Length: 1509327
+2014-04-05 04:08:56 URL:http://apod.nasa.gov/apod/image/1404/farside_lro1600.jpg [1509327] -> "farside_lro1600.jpg" [1]
+
+URL:  http://apod.nasa.gov/apod/image/1404/farside_lro1600.jpg
+FILE: /home/user/projects/daily-pic/pics/farside_lro1600.jpg
 ```
 
 Installation steps

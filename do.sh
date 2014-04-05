@@ -2,7 +2,7 @@
 
 FEH_OPT='--bg-fill'
 WGET_OPT='--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
-GETOPTS_ARGS='ecgiafsmntwbrdo'
+GETOPTS_ARGS='ecgiafsmntwbrdoul'
 
 
 help.usage(){
@@ -22,6 +22,8 @@ Usage: $0 [-h${GETOPTS_ARGS}]
    -e reddit (wallpaper/imgur)
    -d deviantart (rand/24h)
    -o world dienet
+   -u imgur subreddit
+   -l imgur albums
    -r random!
 EOF
 }
@@ -39,6 +41,7 @@ check_in_path(){
 
 check_in_path 'feh'
 check_in_path 'wget'
+check_in_path 'shuf'
 
 [[ $# -ne 1 ]] && { 
     echoerr "uError: Missing argument."
@@ -57,6 +60,55 @@ get.array.rand(){
 get.flag.rand(){
       local nflag=$(( ${#GETOPTS_ARGS} * RANDOM / 32768 + 1))
       echo -n '-'; echo "${GETOPTS_ARGS}" | cut -b"${nflag}"
+}
+
+# Reference: https://github.com/alexgisby/imgur-album-downloader
+http.get.url.imgur.albums(){
+    dtitle 'imgur - wallpaper from a list of albums'
+    local -a BASE_URL_ARRAY
+    BASE_URL_ARRAY+=('a/vU7KC') # cyberpunk
+    BASE_URL_ARRAY+=('a/kknsQ') # wallpaper collection
+
+    local BASE_URL=$(get.array.rand ${BASE_URL_ARRAY[@]})
+    
+    BASE_URL='http://imgur.com/'"${BASE_URL}"'/noscript'
+    
+    local image_url=$(
+        wget "${WGET_OPT}" -q -O- "${BASE_URL}" | 
+        egrep -o '"//i\.imgur.com/[[:alnum:]]+\.(jpg|png|jpeg)' | 
+        cut -f3- -d/ | 
+        shuf -n1
+    )
+
+    [[ ! -z $image_url ]] && {
+        echo 'http://'"${image_url}"
+    }
+}
+
+
+# Reference: https://gist.github.com/Skylark95/5970915
+http.get.url.imgur.subreddit(){
+    dtitle 'imgur - wallpaper from subreddits'
+    local -a BASE_URL_ARRAY
+    BASE_URL_ARRAY+=('r/cyberpunk')
+    BASE_URL_ARRAY+=('r/wallpapers')
+
+    local BASE_URL=$(get.array.rand ${BASE_URL_ARRAY[@]})
+    local page=$((10 * RANDOM / 32768 + 1))
+    
+    BASE_URL='https://api.imgur.com/3/gallery/'"${BASE_URL}"'/time/'"${page}"'/images.xml'
+
+    local ak='1b138bce405b2e0'
+   
+    local image_url=$(
+        wget "${WGET_OPT}" --no-check-certificate --header='Authorization: Client-ID '"${ak}" -q -O- "${BASE_URL}" |
+        egrep -o 'http://i\.imgur.com/[[:alnum:]]+\.(jpg|png|jpeg)' |
+        shuf -n1
+    )
+
+    [[ ! -z $image_url ]] && {
+        echo "${image_url}"
+    }
 }
 
 # Reference: https://github.com/andrewhood125/realtime-earth-wallpaper
@@ -309,16 +361,18 @@ while getopts ':h'"${GETOPTS_ARGS}" opt; do
         a) jpg=$(http.get.url.nasa.apod) ;;
         n) jpg=$(http.get.url.nasa.goes); FEH_OPT='--bg-max';;
         f) jpg=$(http.get.url.fvalk); FEH_OPT='--bg-max' ;;
-	o) jpg=$(http.get.url.dienet.world);;
+        o) jpg=$(http.get.url.dienet.world);;
         s) jpg=$(http.get.url.smn.satopes);;
         m) jpg=$(http.get.url.nrlmry.nexsat);;
         c) jpg=$(http.get.url.4walled);;
         t) jpg=$(http.get.url.interfacelift);;
         w) jpg=$(http.get.url.wallbase);;
         b) jpg=$(http.get.url.bing);;
-        e) jpg=$(http.get.url.reddit);;
         d) jpg=$(http.get.url.deviantart);;
-	r) ((OPTIND--)); set -- $(get.flag.rand);;
+        e) jpg=$(http.get.url.reddit);;
+        u) jpg=$(http.get.url.imgur.subreddit);;
+        l) jpg=$(http.get.url.imgur.albums);;
+        r) ((OPTIND--)); set -- $(get.flag.rand);;
         h) help.usage;;
         *) echoerr 'uError: option not supported. '; help.usage; exit 1;;
     esac
