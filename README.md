@@ -18,6 +18,7 @@ Get and set the image of the day from different sites:
 * dienet world map
 * imgur albums
 * imgur subreddit
+* Chromecast
 * random option!
 
 Feel free to add your own source :)

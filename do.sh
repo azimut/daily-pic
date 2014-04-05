@@ -2,7 +2,8 @@
 
 FEH_OPT='--bg-fill'
 WGET_OPT='--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
-GETOPTS_ARGS='ecgiafsmntwbrdoul'
+USER_AGENT='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
+GETOPTS_ARGS='ecgiafsmntwbrdoulz'
 
 
 help.usage(){
@@ -24,6 +25,7 @@ Usage: $0 [-h${GETOPTS_ARGS}]
    -o world dienet
    -u imgur subreddit
    -l imgur albums
+   -z chromecast wallpaper
    -r random!
 EOF
 }
@@ -40,7 +42,7 @@ check_in_path(){
 }
 
 check_in_path 'feh'
-check_in_path 'wget'
+check_in_path 'curl'
 check_in_path 'shuf'
 
 [[ $# -ne 1 ]] && { 
@@ -62,6 +64,27 @@ get.flag.rand(){
       echo -n '-'; echo "${GETOPTS_ARGS}" | cut -b"${nflag}"
 }
 
+# Reference: https://github.com/dconnolly/Chromecast-Backgrounds
+http.get.url.chromecast(){
+    dtitle 'chromecast - wallpaper'
+    local BASE_URL='https://clients3.google.com/cast/chromecast/home/v/c9541b08'
+    local image_url=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
+        egrep -o 'JSON\.parse[^)]+' |
+        tr -d '\\' |
+        cut -f2 -d"'" |
+        tr ',' '\n' |
+        grep https |
+        shuf -n1
+    )
+
+    [[ ! -z $image_url ]] && {
+        image_url=${image_url:3}
+        image_url=${image_url:0:-3}
+        echo "${image_url}"
+    }
+}
+
 # Reference: https://github.com/alexgisby/imgur-album-downloader
 http.get.url.imgur.albums(){
     dtitle 'imgur - wallpaper from a list of albums'
@@ -74,7 +97,7 @@ http.get.url.imgur.albums(){
     BASE_URL='http://imgur.com/'"${BASE_URL}"'/noscript'
     
     local image_url=$(
-        wget "${WGET_OPT}" -q -O- "${BASE_URL}" | 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
         egrep -o '"//i\.imgur.com/[[:alnum:]]+\.(jpg|png|jpeg)' | 
         cut -f3- -d/ | 
         shuf -n1
@@ -101,7 +124,7 @@ http.get.url.imgur.subreddit(){
     local ak='1b138bce405b2e0'
    
     local image_url=$(
-        wget "${WGET_OPT}" --no-check-certificate --header='Authorization: Client-ID '"${ak}" -q -O- "${BASE_URL}" |
+        curl -A "${USER_AGENT}" -k -s -o- --header 'Authorization: Client-ID '"${ak}" "${BASE_URL}" |
         egrep -o 'http://i\.imgur.com/[[:alnum:]]+\.(jpg|png|jpeg)' |
         shuf -n1
     )
@@ -136,7 +159,7 @@ http.get.url.deviantart(){
     local BASE_URL=$(get.array.rand ${BASE_URL_ARRAY[@]})
 
     local image_url=$(
-        wget "${WGET_OPT}" -q -O- "${BASE_URL}" | 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
         egrep -o 'data-src="http://[[:alnum:]]+\.deviantart\.net/[[:alnum:]]+/200H/.+/.+/.+/.+/.+/.+\.(png|jpg|jpeg)"' | 
         cut -f2 -d'"' | 
         shuf -n1
@@ -152,10 +175,10 @@ http.get.url.reddit(){
     dtitle 'reddit - /r/wallpapers'
     local BASE_URL='http://www.reddit.com/r/wallpapers/.json'
     local image_url=$(
-        wget "${WGET_OPT}" -q -O- "${BASE_URL}" | 
-	tr ' ' '\n' | 
-	egrep -o 'http://i.imgur.com/[[:alnum:]]+\.(png|jpg)' | 
-	shuf -n1
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
+	    tr ' ' '\n' | 
+	    egrep -o 'http://i.imgur.com/[[:alnum:]]+\.(png|jpg)' | 
+	    shuf -n1
     )
     if [[ ! -z ${image_url} ]]; then
         echo "${image_url}"
@@ -168,8 +191,8 @@ http.get.url.bing(){
     local BASE_URL='http://www.bing.com/HPImageArchive.aspx?format=js&n=1&pid=hp&video=0'
     local IMAGE_BASE_URL='http://www.bing.com'
     local image_url=$(
-        wget "${WGET_OPT}" -q -O- "${BASE_URL}" | 
-	sed -E 's/.*"url":"([^"]+)"[,\}].*/\1/g' 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
+	    sed -E 's/.*"url":"([^"]+)"[,\}].*/\1/g' 
     )
     if [[ ! -z ${image_url} ]]; then
         echo "${IMAGE_BASE_URL}""${image_url}"
@@ -195,9 +218,9 @@ http.get.url.wallbase(){
     local BASE_URL=$(get.array.rand ${BASE_URL_ARRAY[@]})
 
     local image_url=$(
-        wget "${WGET_OPT}" -q -O- "${BASE_URL}" | 
-	egrep -o 'http://thumbs.wallbase.cc//[[:alpha:]-]+/thumb-[0-9]+.(jpg|png|jpeg)' | 
-	shuf -n1
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
+	    egrep -o 'http://thumbs.wallbase.cc//[[:alpha:]-]+/thumb-[0-9]+.(jpg|png|jpeg)' | 
+	    shuf -n1
     )
     image_url=${image_url/thumb-/wallpaper-}
     image_url=${image_url/thumbs/wallpapers}
@@ -213,7 +236,7 @@ http.get.url.nrlmry.nexsat(){
     local BASE_URL='http://www.nrlmry.navy.mil/nexsat-bin/nexsat.cgi?BASIN=CONUS&SUB_BASIN=focus_regions&AGE=Archive&REGION='"${region}"'&SECTOR=Overview&PRODUCT=vis_ir_background&SUB_PRODUCT=goes&PAGETYPE=static&DISPLAY=single&SIZE=Thumb&PATH='"${path}"'/vis_ir_background/goes&&buttonPressed=Archive'
     local IMAGE_BASE_URL='http://www.nrlmry.navy.mil/htdocs_dyn_apache/PUBLIC/nexsat/thumbs/full_size/'"${path}"'/vis_ir_background/goes/'
     local image_url=$(
-        wget "${WGET_OPT}" -q -O- "$BASE_URL" | 
+        curl -A "${USER_AGENT}" -k -s -o- "$BASE_URL" | 
         fgrep -m1 option | 
         cut -f2 -d'"'
     )
@@ -242,12 +265,12 @@ http.get.url.4walled(){
     
     local URL='http://4walled.cc/search.php?tags=&board'${board}'=&width_aspect=1024x133&searchstyle=larger&sfw='"${sfw}"'&search=random'
     local BASE_URL=$(
-        wget "${WGET_OPT}" -q -O- "${URL}" | 
+        curl -A "${USER_AGENT}" -k -s -o- "${URL}" | 
         fgrep -m1 '<li class' | 
         cut -f4 -d"'"
     )
     local image_url=$(
-        wget "${WGET_OPT}" -O- -q "${BASE_URL}" | 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
 	fgrep -m1 'href="http' | 
 	cut -f2 -d'"'
     )
@@ -262,7 +285,7 @@ http.get.url.interfacelift(){
     local BASE_URL='http://interfacelift.com/wallpaper/downloads/random/fullscreen/1600x1200/'
     local IMAGE_BASE_URL='http://interfacelift.com'
     local image_url=$(
-        wget "${WGET_OPT}" --quiet -O - "${BASE_URL}" | 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
         egrep -o 'a href="/wallpaper/[[:alnum:]]+/[[:alnum:]_]+.jpg' | 
         cut -f2 -d'"' | 
         shuf -n1
@@ -278,7 +301,7 @@ http.get.url.nasa.apod(){
     local BASE_URL='http://apod.nasa.gov/apod/'
     local IMAGE_BASE_URL=$BASE_URL
     local image_url=$(
-        wget "${WGET_OPT}" --quiet -O - "${BASE_URL}" | 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
         fgrep -m1 jpg | 
         cut -f2 -d'"'
     )
@@ -293,7 +316,7 @@ http.get.url.natgeo(){
     local BASE_URL='http://photography.nationalgeographic.com/photography/photo-of-the-day/'
     local IMAGE_BASE_URL='images.nationalgeographic.com'
     local image_url=$(
-        wget "${WGET_OPT}" --quiet -O - "${BASE_URL}" |  
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |  
         egrep -o -m1 "${IMAGE_BASE_URL}"'/.*[0-9]*x[0-9]*.jpg' 
     )
     if [[ ! -z $image_url ]]; then
@@ -314,9 +337,9 @@ http.get.url.fvalk(){
     local IMAGE_BASE_URL='http://www.fvalk.com/images/Day_image/'
     local dust='GOES-12'
     local image_url=$(
-        wget "${WGET_OPT}" --quiet -O - "${BASE_URL}" | 
-	grep -m1 "${dust}" | 
-	cut -f6 -d'"'
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
+    	grep -m1 "${dust}" | 
+	    cut -f6 -d'"'
     )
     if [[ ! -z $image_url ]]; then
         echo "${IMAGE_BASE_URL}""${image_url}"
@@ -337,7 +360,7 @@ http.get.url.nasa.iotd(){
     dtitle 'NASA Image of the day'
     check_in_path 'base64'
     local BASE_URL='http://www.nasa.gov/rss/dyn/lg_image_of_the_day.rss'
-    local html_url=$(base64 <(wget "${WGET_OPT}" --quiet -O - --header='Accept-Encoding: gzip' "${BASE_URL}"))
+    local html_url=$(base64 <(curl -A "${USER_AGENT}" -k -s -o- --header 'Accept-Encoding: gzip' "${BASE_URL}"))
     local ftype=$(echo "$html_url" | base64 --decode | file -)
     
     if [[ $ftype == *gzip* ]]; then
@@ -372,6 +395,7 @@ while getopts ':h'"${GETOPTS_ARGS}" opt; do
         e) jpg=$(http.get.url.reddit);;
         u) jpg=$(http.get.url.imgur.subreddit);;
         l) jpg=$(http.get.url.imgur.albums);;
+        z) jpg=$(http.get.url.chromecast);;
         r) ((OPTIND--)); set -- $(get.flag.rand);;
         h) help.usage;;
         *) echoerr 'uError: option not supported. '; help.usage; exit 1;;
@@ -382,10 +406,13 @@ mkdir -p pics # portability
 cd pics
 
 # referece: http://blog.yjl.im/2012/03/downloading-only-when-modified-using_23.html
+#           http://blog.yjl.im/2012/03/downloading-only-when-modified-using.html
 if [[ ! -z $jpg ]]; then
     pic_name=${jpg##*/}
     filename="${PWD}/${pic_name}"
-    wget "${WGET_OPT}" "${jpg}" --server-response --timestamping --no-verbose --ignore-length
+    
+    curl -A "${USER_AGENT}" -k --dump-header - "${jpg}" -z "${filename}" -o "${filename}" -s -L 2>/dev/null
+
     DISPLAY=:0.0 feh "${FEH_OPT}" "${filename}"
     echo
     echo 'URL:  '"${jpg}"
