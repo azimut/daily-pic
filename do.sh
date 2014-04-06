@@ -3,7 +3,7 @@
 FEH_OPT='--bg-fill'
 WGET_OPT='--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
 USER_AGENT='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
-GETOPTS_ARGS='ecgiafsmntwbrdoulz'
+GETOPTS_ARGS='ecgiafsmntwbrdoulzp'
 
 
 help.usage(){
@@ -26,6 +26,7 @@ Usage: $0 [-h${GETOPTS_ARGS}]
    -u imgur subreddit
    -l imgur albums
    -z chromecast wallpaper
+   -p simpledesktops
    -r random!
 EOF
 }
@@ -126,6 +127,21 @@ http.get.url.imgur.subreddit(){
     local image_url=$(
         curl -A "${USER_AGENT}" -k -s -o- --header 'Authorization: Client-ID '"${ak}" "${BASE_URL}" |
         egrep -o 'http://i\.imgur.com/[[:alnum:]]+\.(jpg|png|jpeg)' |
+        shuf -n1
+    )
+
+    [[ ! -z $image_url ]] && {
+        echo "${image_url}"
+    }
+}
+
+http.get.url.simpledesktops(){
+    dtitle 'simpledesktops - minimalistic desktops'
+    local page=$((46 * RANDOM / 32768 + 1 ))
+    local BASE_URL='http://simpledesktops.com/browse/'"${page}"'/'
+    local image_url=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+        egrep -o 'http://static.simpledesktops.com/uploads/desktops/[0-9]+/[0-9]+/[0-9]+/[[:alnum:]_-]+\.(jpg|png|jpeg)' | 
         shuf -n1
     )
 
@@ -396,6 +412,7 @@ while getopts ':h'"${GETOPTS_ARGS}" opt; do
         u) jpg=$(http.get.url.imgur.subreddit);;
         l) jpg=$(http.get.url.imgur.albums);;
         z) jpg=$(http.get.url.chromecast);;
+        p) jpg=$(http.get.url.simpledesktops);;
         r) ((OPTIND--)); set -- $(get.flag.rand);;
         h) help.usage;;
         *) echoerr 'uError: option not supported. '; help.usage; exit 1;;
