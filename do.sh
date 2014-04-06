@@ -3,7 +3,7 @@
 FEH_OPT='--bg-fill'
 WGET_OPT='--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
 USER_AGENT='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
-GETOPTS_ARGS='ecgiafsmntwbrdoulzp'
+GETOPTS_ARGS='ecgiafsmntwbrdoulzpx'
 
 
 help.usage(){
@@ -27,6 +27,7 @@ Usage: $0 [-h${GETOPTS_ARGS}]
    -l imgur albums
    -z chromecast wallpaper
    -p simpledesktops
+   -x xkcd
    -r random!
 EOF
 }
@@ -63,6 +64,22 @@ get.array.rand(){
 get.flag.rand(){
       local nflag=$(( ${#GETOPTS_ARGS} * RANDOM / 32768 + 1))
       echo -n '-'; echo "${GETOPTS_ARGS}" | cut -b"${nflag}"
+}
+
+# Reference: https://github.com/payoj/imagedownloader
+http.get.url.xkcd.rand(){
+    dtitle 'xkcd - comic'
+    local page=$((1351 * RANDOM / 32768 + 1 ))
+    local BASE_URL='http://xkcd.com/'"${page}"'/'
+    local image_url=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+        egrep -o 'http://imgs.xkcd.com/comics/[[:alnum:]_-]+\.(jpg|jpeg|png)' |
+        head -1
+    )
+
+    [[ ! -z $image_url ]] && {
+        echo "${image_url}"
+    }
 }
 
 # Reference: https://github.com/dconnolly/Chromecast-Backgrounds
@@ -413,6 +430,7 @@ while getopts ':h'"${GETOPTS_ARGS}" opt; do
         l) jpg=$(http.get.url.imgur.albums);;
         z) jpg=$(http.get.url.chromecast);;
         p) jpg=$(http.get.url.simpledesktops);;
+        x) jpg=$(http.get.url.xkcd.rand); FEH_OPT='--bg-center --image-bg black';;
         r) ((OPTIND--)); set -- $(get.flag.rand);;
         h) help.usage;;
         *) echoerr 'uError: option not supported. '; help.usage; exit 1;;
@@ -439,7 +457,7 @@ if [[ ! -z $jpg ]]; then
         gconftool-2 -t str --set /desktop/gnome/background/picture_options "scaled"
     fi
 
-    DISPLAY=:0.0 feh "${FEH_OPT}" "${filename}"
+    DISPLAY=:0.0 feh ${FEH_OPT} "${filename}"
     
     echo 'URL:  '"${jpg}"
     echo 'FILE: '"${filename}"

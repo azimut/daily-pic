@@ -19,6 +19,8 @@ Get and set the image of the day from different sites:
 * imgur albums
 * imgur subreddit
 * Chromecast
+* Simpledesktops
+* xkcd
 * random option!
 
 Feel free to add your own source :)
