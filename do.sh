@@ -232,23 +232,29 @@ http.get.url.bing(){
     fi
 }
 
+#BASE_URL_ARRAY+=('http://wallbase.cc/random')
+
 # https://github.com/jabbalaci/Wallpaper-Downloader-and-Rotator-for-Gnome
 http.get.url.wallbase(){
     dtitle 'wallbase.cc - random wallpaper, from different topics'
     local -a BASE_URL_ARRAY
-    #BASE_URL_ARRAY+=('http://wallbase.cc/random')
-    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=8135')  # outer-space
-    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=11544') # cyberpunk
-    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=41408') # mandelbrot
-    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=17756') # historic
-    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=12637') # maps
-    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=20118') # manga
-    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=8383')  # dc comics
-    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=44153') # vertigo comics
-    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=8208')  # cityscapes
-    BASE_URL_ARRAY+=('http://wallbase.cc/search?tag=8023')  # landscapes
+    BASE_URL_ARRAY+=('tag=8135&order=random')  # outer-space
+    BASE_URL_ARRAY+=('tag=11544&order=random') # cyberpunk
+    BASE_URL_ARRAY+=('tag=41408')              # mandelbrot
+    BASE_URL_ARRAY+=('tag=17756')              # historic
+    BASE_URL_ARRAY+=('tag=12637')              # maps
+    BASE_URL_ARRAY+=('tag=20118')              # manga
+    BASE_URL_ARRAY+=('tag=8383')               # dc comics
+    BASE_URL_ARRAY+=('tag=44153&order=random') # vertigo comics
+    BASE_URL_ARRAY+=('tag=8208')               # cityscapes
+    BASE_URL_ARRAY+=('tag=8023')               # landscapes
+    BASE_URL_ARRAY+=('tag=18787')              # board games
+    BASE_URL_ARRAY+=('tag=10896&order=random') # subway
+    BASE_URL_ARRAY+=('tag=9620&order=random')  # telescope 
+    BASE_URL_ARRAY+=('tag=8911&order=random')  # silhouettes
+    BASE_URL_ARRAY+=('tag=11563&order=random') # national geographic
 
-    local BASE_URL=$(get.array.rand ${BASE_URL_ARRAY[@]})
+    local BASE_URL='http://wallbase.cc/search?'$(get.array.rand ${BASE_URL_ARRAY[@]})
 
     local image_url=$(
         curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
