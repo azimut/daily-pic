@@ -114,6 +114,7 @@ get.flag.rand(){
 # ========== http.get.url
 
 http.get.url.eatthattoast(){
+    dtitle 'eatthattoast - comic'
     local page=$((3 * RANDOM / 32768 + 1 ))
     local BASE_URL='http://eatthattoast.com/comic/page/'"${page}"'/'
     local IMAGE_BASE_URL=$(
