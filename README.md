@@ -21,6 +21,7 @@ Get and set the image of the day from different sites:
 * Chromecast
 * Simpledesktops
 * xkcd
+* eatthattoast
 * random option!
 
 Feel free to add your own source :)

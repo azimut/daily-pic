@@ -2,7 +2,7 @@
 
 FEH_OPT='--bg-fill'
 USER_AGENT='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
-GETOPTS_ARGS='ecgiafsmntwbrdoulzpx'
+GETOPTS_ARGS='ecgiafsmntwbrdoulzpxk'
 
 
 help.usage(){
@@ -27,6 +27,7 @@ Usage: $0 [-h${GETOPTS_ARGS}]
    -z chromecast wallpaper
    -p simpledesktops
    -x xkcd
+   -k eatthattoast
    -r random!
 EOF
 }
@@ -108,6 +109,27 @@ get.array.rand(){
 get.flag.rand(){
       local nflag=$(( ${#GETOPTS_ARGS} * RANDOM / 32768 + 1))
       echo -n '-'; echo "${GETOPTS_ARGS}" | cut -b"${nflag}"
+}
+
+# ========== http.get.url
+
+http.get.url.eatthattoast(){
+    local page=$((3 * RANDOM / 32768 + 1 ))
+    local BASE_URL='http://eatthattoast.com/comic/page/'"${page}"'/'
+    local IMAGE_BASE_URL=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+        grep 'Permanent Link' |
+        egrep -o 'http://eatthattoast.com/comic/[[:alnum:]_-]+/' |
+        shuf -n1
+    )
+    local image_url=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${IMAGE_BASE_URL}" |
+        egrep -o 'http://eatthattoast.com/wp-content/uploads/[0-9]+/[0-9]+/[0-9-]+\.(png|gif|jpg|jpeg)'
+    )
+
+    [[ ! -z $image_url ]] && {
+        echo "${image_url}"
+    }
 }
 
 # Reference: https://github.com/payoj/imagedownloader
@@ -458,8 +480,11 @@ http.get.url.nasa.iotd(){
     fi
 }
 
+# ========== http.get.url
+
 
 # this will need to be replaced someday with a more custom logic that getopts ~azimut
+# ...that day gets closer and closer...perhaps using categories like comics, space, random
 while getopts ':h'"${GETOPTS_ARGS}" opt; do
     case $opt in
         g) jpg=$(http.get.url.natgeo) ;;
@@ -481,6 +506,7 @@ while getopts ':h'"${GETOPTS_ARGS}" opt; do
         z) jpg=$(http.get.url.chromecast);;
         p) jpg=$(http.get.url.simpledesktops);;
         x) jpg=$(http.get.url.xkcd.rand); FEH_OPT='--bg-center --image-bg black';;
+        k) jpg=$(http.get.url.eatthattoast); FEH_OPT='--bg-center --image-bg black';;
         r) ((OPTIND--)); set -- $(get.flag.rand);;
         h) help.usage;;
         *) echoerr 'uError: option not supported. '; help.usage; exit 1;;
