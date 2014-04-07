@@ -1,7 +1,6 @@
 #!/bin/bash
 
 FEH_OPT='--bg-fill'
-WGET_OPT='--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
 USER_AGENT='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
 GETOPTS_ARGS='ecgiafsmntwbrdoulzpx'
 
