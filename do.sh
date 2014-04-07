@@ -53,6 +53,51 @@ check_in_path 'shuf'
     exit 1
 }
 
+# Reference: http://bazaar.launchpad.net/~peterlevi/variety/trunk/view/head:/data/scripts/set_wallpaper
+set.wallpaper(){
+    local WP=$1
+
+    # KDE - User will have to manually choose ~/.config/variety/wallpaper-kde.jpg as a wallpaper.
+    # Afterwards, with the command below, Variety will just overwrite the file when changing the wallpaper
+    # and KDE will refresh it
+    if [ "`env | grep KDE_FULL_SESSION | tail -c +18`" == "true" ]; then
+        cp "$WP" ~/.config/variety/wallpaper-kde.jpg
+        exit 0
+    fi
+    
+    # Gnome 3, Unity
+    gsettings set org.gnome.desktop.background picture-uri "file://$WP" 2> /dev/null
+    gsettings set com.canonical.unity-greeter background "$WP" 2>/dev/null
+    if [ "`gsettings get org.gnome.desktop.background picture-options`" == "'none'" ]; then
+        gsettings set org.gnome.desktop.background picture-options 'zoom' 2>/dev/null
+    fi
+    
+    # XFCE
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s "" 2> /dev/null
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s "$WP" 2> /dev/null
+    
+    # LXDE/PCmanFM
+    pcmanfm --set-wallpaper "$WP" 2> /dev/null
+    
+    # Feh - commented, as it may cause problems with Nautilus, (see bug https://bugs.launchpad.net/variety/+bug/1047083)
+    # feh --bg-scale "$WP" 2> /dev/null
+    
+    # MATE after 1.6
+    gsettings set org.mate.background picture-filename "$WP" 2> /dev/null
+    
+    # MATE before 1.6
+    mateconftool-2 -t string -s /desktop/mate/background/picture_filename "$WP" 2> /dev/null
+    
+    # Cinnamon after 1.8
+    gsettings set org.cinnamon.background picture-uri "file://$WP" 2> /dev/null
+    
+    # Cinnamon after 2.0
+    gsettings set org.cinnamon.desktop.background picture-uri "file://$WP" 2> /dev/null
+    
+    # Gnome 2
+    gconftool-2 -t string -s /desktop/gnome/background/picture_filename "$WP" 2> /dev/null
+}
+
 # Description: takes an array as argument and returns a random element
 #              a little bit cheap, but it works ...
 get.array.rand(){
@@ -454,15 +499,8 @@ if [[ ! -z $jpg ]]; then
     
     curl -A "${USER_AGENT}" -k --dump-header - "${jpg}" -z "${filename}" -o "${filename}" -s -L 2>/dev/null
     
-    if hash gnome-session &>/dev/null; then
-        check_in_path 'gsettings'
-        gsettings set org.gnome.desktop.background picture-uri file://"${filename}"
-    elif hash gnome-about &>/dev/null; then
-        check_in_path 'gconftool-2'
-        gconftool-2 -t str --set /desktop/gnome/background/picture_filename "${filename}"
-        gconftool-2 -t str --set /desktop/gnome/background/picture_options "scaled"
-    fi
-
+    set.wallpaper "${filename}"
+    
     DISPLAY=:0.0 feh ${FEH_OPT} "${filename}"
     
     echo 'URL:  '"${jpg}"
