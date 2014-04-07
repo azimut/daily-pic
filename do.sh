@@ -2,7 +2,7 @@
 
 FEH_OPT='--bg-fill'
 USER_AGENT='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
-GETOPTS_ARGS='ecgiafsmntwbrdoulzpxk'
+GETOPTS_ARGS='ecgiafsmntwbrdoulzpxkyv'
 
 
 help.usage(){
@@ -28,12 +28,18 @@ Usage: $0 [-h${GETOPTS_ARGS}]
    -p simpledesktops
    -x xkcd
    -k eatthattoast
+   -y dilbert
+   -v calvinandhobbes
    -r random!
 EOF
 }
 
+# >>>>>>>>>>> helpers
+
 echoerr() { echo "$@" 1>&2; }
 dtitle()  { echo -en '# '"$@"'\n\n' 1>&2; }
+
+# >>>>>>>>>>> checking minimum requirements and argument is present
 
 check_in_path(){
     local cmd=$1
@@ -53,6 +59,35 @@ check_in_path 'shuf'
     exit 1
 }
 
+
+# >>>>>>>>>>> extra helpers
+
+# Description: takes an array as argument and returns a random element
+#              a little bit cheap, but it works ...
+get.array.rand(){
+    echo "$@" | tr ' ' '\n' | shuf -n1
+}
+
+# Description: from the list of getopts flags returns a random one with the leading dash '-'
+#              it works...
+get.flag.rand(){
+      local nflag=$(( ${#GETOPTS_ARGS} * RANDOM / 32768 + 1))
+      echo -n '-'; echo "${GETOPTS_ARGS}" | cut -b"${nflag}"
+}
+
+get.date.rand.since(){
+    local first_strip_date=$1
+    local fs_days_since=$(( $(date --date="${first_strip_date}" +%s) / 60 / 60 / 24 ))
+     
+    local today_date=$(date +%F)
+    local today_days_since=$(( $(date +%s) / 60 / 60 / 24 ))
+     
+    local days_since=$(( ${today_days_since} - ${fs_days_since} ))
+    local random_day=$(( days_since * RANDOM / 32768 + 1 ))
+    echo $(date --date="$random_day days ago" +%F)
+}
+# >>>>>>>>>>> cross-wm wallpaper setter 
+
 # Reference: http://bazaar.launchpad.net/~peterlevi/variety/trunk/view/head:/data/scripts/set_wallpaper
 set.wallpaper(){
     local WP=$1
@@ -62,9 +97,11 @@ set.wallpaper(){
     # and KDE will refresh it
     if [ "`env | grep KDE_FULL_SESSION | tail -c +18`" == "true" ]; then
         cp "$WP" ~/.config/variety/wallpaper-kde.jpg
-        exit 0
+        return 0
     fi
     
+    DISPLAY=:0.0 feh ${FEH_OPT} "${WP}"
+
     # Gnome 3, Unity
     gsettings set org.gnome.desktop.background picture-uri "file://$WP" 2> /dev/null
     gsettings set com.canonical.unity-greeter background "$WP" 2>/dev/null
@@ -96,22 +133,56 @@ set.wallpaper(){
     
     # Gnome 2
     gconftool-2 -t string -s /desktop/gnome/background/picture_filename "$WP" 2> /dev/null
+
 }
 
-# Description: takes an array as argument and returns a random element
-#              a little bit cheap, but it works ...
-get.array.rand(){
-    echo "$@" | tr ' ' '\n' | shuf -n1
+
+# >>>>>>>>>>>
+# >>>>>>>>>>> real work is done here, they just return ONE url of an image
+# >>>>>>>>>>>
+
+http.get.url.calvinandhobbes(){
+    dtitle 'calvin and hobbes - comic'
+    check_in_path 'date'
+    
+    local first_strip_date='1985-11-18'
+    local date_strip=$(get.date.rand.since "${first_strip_date}")
+    date_strip=${date_strip//-/\/} # fixing formatting
+
+    local BASE_URL='http://www.gocomics.com/calvinandhobbes/'"${date_strip}"
+    local image_url=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+        grep '"strip"' | 
+        tr '"' '\n'| 
+        grep asset
+    )
+    [[ ! -z $image_url ]] && {
+        echo "${image_url}"
+    }
 }
 
-# Description: from the list of getopts flags returns a random one with the leading dash '-'
-#              it works...
-get.flag.rand(){
-      local nflag=$(( ${#GETOPTS_ARGS} * RANDOM / 32768 + 1))
-      echo -n '-'; echo "${GETOPTS_ARGS}" | cut -b"${nflag}"
-}
+# Reference: https://github.com/ondrg/dilbert-downloader
+http.get.url.dilbert(){
+    dtitle 'dilbert - comic'
+    check_in_path 'date'
+    
+    local first_strip_date='1989-04-16'
+    
+    local date_strip=$(get.date.rand.since "${first_strip_date}")
+    
+    local BASE_URL='http://www.dilbert.com/'"${date_strip}"'/'
+    local image_url=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+        grep '.strip.zoom.gif' | 
+        cut -f2 -d '"'
+    )
 
-# ========== http.get.url
+    local IMAGE_BASE_URL='http://www.dilbert.com'
+
+    [[ ! -z $image_url ]] && {
+        echo "${IMAGE_BASE_URL}/${image_url}"
+    }
+}
 
 http.get.url.eatthattoast(){
     dtitle 'eatthattoast - comic'
@@ -264,8 +335,8 @@ http.get.url.deviantart(){
         cut -f2 -d'"' | 
         shuf -n1
     )
-    image_url=${image_url/200H/}
     if [[ ! -z $image_url ]]; then
+        image_url=${image_url/200H/}
         echo "${image_url}"
     fi
 }
@@ -481,8 +552,7 @@ http.get.url.nasa.iotd(){
     fi
 }
 
-# ========== http.get.url
-
+# >>>>>>>>>>> switch-board of flags
 
 # this will need to be replaced someday with a more custom logic that getopts ~azimut
 # ...that day gets closer and closer...perhaps using categories like comics, space, random
@@ -508,27 +578,30 @@ while getopts ':h'"${GETOPTS_ARGS}" opt; do
         p) jpg=$(http.get.url.simpledesktops);;
         x) jpg=$(http.get.url.xkcd.rand); FEH_OPT='--bg-center --image-bg black';;
         k) jpg=$(http.get.url.eatthattoast); FEH_OPT='--bg-center --image-bg black';;
+        y) jpg=$(http.get.url.dilbert); FEH_OPT='--bg-center --image-bg black';;
+        v) jpg=$(http.get.url.calvinandhobbes); FEH_OPT='--bg-center --image-bg black';;
         r) ((OPTIND--)); set -- $(get.flag.rand);;
         h) help.usage;;
         *) echoerr 'uError: option not supported. '; help.usage; exit 1;;
     esac
 done
 
+# >>>>>>>>>>> setting up the env
+
 mkdir -p pics # portability
 cd pics
 
-# referece: http://blog.yjl.im/2012/03/downloading-only-when-modified-using_23.html
-#           http://blog.yjl.im/2012/03/downloading-only-when-modified-using.html
+# >>>>>>>>>>> Dowload the image AND set it as wallpaper
+
 if [[ ! -z $jpg ]]; then
     pic_name=${jpg##*/}
     filename="${PWD}/${pic_name}"
     
+    # Reference: http://blog.yjl.im/2012/03/downloading-only-when-modified-using.html
     curl -A "${USER_AGENT}" -k --dump-header - "${jpg}" -z "${filename}" -o "${filename}" -s -L 2>/dev/null
     
     set.wallpaper "${filename}"
-    
-    DISPLAY=:0.0 feh ${FEH_OPT} "${filename}"
-    
+        
     echo 'URL:  '"${jpg}"
     echo 'FILE: '"${filename}"
 fi

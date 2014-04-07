@@ -22,6 +22,8 @@ Get and set the image of the day from different sites:
 * Simpledesktops
 * xkcd
 * eatthattoast
+* dilbert
+* calvinandhobbes
 * random option!
 
 Feel free to add your own source :)
