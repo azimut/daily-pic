@@ -479,7 +479,7 @@ http.get.url.nasa.apod(){
     local IMAGE_BASE_URL=$BASE_URL
     local image_url=$(
         curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
-        fgrep -m1 jpg | 
+        egrep -m1 'jpg|png|gif' | 
         cut -f2 -d'"'
     )
     if [[ ! -z $image_url ]]; then
@@ -527,7 +527,9 @@ http.get.url.smn.satopes(){
     dtitle 'SMN - Servicio meteorologico nacional argentino'
     local BASE_URL='http://www.smn.gov.ar/pronos/imagenes'
     local image_url="${BASE_URL}"/satopes.jpg
-    echo "${image_url}"
+#    echo "${image_url}"
+#     echo 'http://www.smn.gov.ar/vmsr/conae/MCidas/LATEST/goes13_imager_LATEST_argentina_shss_b4_ctt.jpg'
+    echo 'http://www.smn.gov.ar/vmsr/conae/MCidas/LATEST/goes13_imager_LATEST_argentina_b4_ctt.jpg'
 }
 
 # Reference: http://awesome.naquadah.org/wiki/NASA_IOTD_Wallpaper
