@@ -391,6 +391,9 @@ http.get.url.wallbase(){
     BASE_URL_ARRAY+=('tag=9620&order=random')  # telescope 
     BASE_URL_ARRAY+=('tag=8911&order=random')  # silhouettes
     BASE_URL_ARRAY+=('tag=11563&order=random') # national geographic
+    BASE_URL_ARRAY+=('tag=17339&order=random') # macro
+    BASE_URL_ARRAY+=('tag=8664&order=random')  # leaves
+    BASE_URL_ARRAY+=('tag=8190&order=random')  # autum
 
     local BASE_URL='http://wallbase.cc/search?'$(get.array.rand ${BASE_URL_ARRAY[@]})
 
