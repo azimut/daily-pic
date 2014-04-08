@@ -100,6 +100,8 @@ set.wallpaper(){
         return 0
     fi
     
+    hash gsettings &>/dev/null || \
+    hash xfconf-query &>/dev/null || \
     DISPLAY=:0.0 feh ${FEH_OPT} "${WP}"
 
     # Gnome 3, Unity
