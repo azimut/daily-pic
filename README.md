@@ -3,6 +3,8 @@ daily-pic
 
 Get and set the image of the day from different sites:
 
+![result](http://i.imgur.com/V6oPqpS.gif "example")
+
 ### Astronomy
 * nasa.apod
 * nasa.iod
@@ -37,11 +39,6 @@ Get and set the image of the day from different sites:
 * nexsat
 
 Feel free to add your own source :)
-
-Example
--------
-
-![result](http://i.imgur.com/V6oPqpS.gif "example")
 
 Usage
 -----
