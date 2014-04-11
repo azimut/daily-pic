@@ -7,37 +7,69 @@ GETOPTS_ARGS='ecgiafsmntwbrdoulzpxkyv'
 
 help.usage(){
     cat <<EOF
-Usage: $0 [-h${GETOPTS_ARGS}]
-   -g National Geographic Image of the day
-   -a NASA Astronomy Picture Of the Day (APOD)
-   -i NASA Image of the Day
-   -f FVALK satellite image of the earth updated each 3 hours
-   -s SMN Servicio Metereologico Nacional Argentino - Imagen de radar
-   -c images from 4chan/4walled.cc (rand)
-   -m monterey nexsat
-   -n nasa goes
-   -t interfacelift (rand)
-   -w wallbase (rand)
-   -b bing (iod)
-   -e reddit (wallpaper/imgur)
-   -d deviantart (rand/24h)
-   -o world dienet
-   -u imgur subreddit
-   -l imgur albums
-   -z chromecast wallpaper
-   -p simpledesktops
-   -x xkcd
-   -k eatthattoast
-   -y dilbert
-   -v calvinandhobbes
-   -r random!
+Usage: $0 [-hacnwm] <site>
+
 EOF
+    help.usage.astronomy
+    help.usage.comics
+    help.usage.misc
+    help.usage.nature
+    help.usage.weather
 }
 
+help.usage.astronomy(){
+    cat <<EOF
+    -a
+        nasa.apod
+        nasa.iod
+        nasa.jpl
+EOF
+}
+help.usage.comics(){
+    cat <<EOF
+    -c
+        dilbert
+        calvinandhobbes
+        eatthattoast
+        xkcd
+EOF
+}
+help.usage.misc(){
+    cat <<EOF
+    -m
+        4walled
+        interfacelift
+        wallbase
+        imgur.albums
+        imgur.subreddit
+        reddit
+        deviantart
+        simpledesktops
+EOF
+}
+help.usage.nature(){
+    cat <<EOF
+    -n 
+        bing
+        chromecast
+        natgeo
+EOF
+}
+help.usage.weather(){
+    cat <<EOF
+    -w 
+        nasa.goes
+        smn
+        dienet
+        fvalk
+        nexsat
+EOF
+}
 # >>>>>>>>>>> helpers
 
 echoerr() { echo "$@" 1>&2; }
 dtitle()  { echo -en '# '"$@"'\n\n' 1>&2; }
+dmsg()  { echo -en '- '"$@"'\n\n' 1>&2; }
 
 # >>>>>>>>>>> checking minimum requirements and argument is present
 
@@ -53,7 +85,7 @@ check_in_path 'feh'
 check_in_path 'curl'
 check_in_path 'shuf'
 
-[[ $# -ne 1 ]] && { 
+[[ $# -eq 0 || $# -ge 3 ]] && { 
     echoerr "uError: Missing argument."
     help.usage
     exit 1
@@ -143,6 +175,56 @@ set.wallpaper(){
 # >>>>>>>>>>> real work is done here, they just return ONE url of an image
 # >>>>>>>>>>>
 
+http.get.url.nasa.jpl(){
+    dtitle 'NASA - Jet Propulsion Laboratory'
+    local -a category_array
+    category_array+=('featured')
+    category_array+=('sun')
+    category_array+=('mercury')
+    category_array+=('venus')
+    category_array+=('earth')
+    category_array+=('mars')
+    category_array+=('jupiter')
+    category_array+=('saturn')
+    category_array+=('uranus')
+    category_array+=('neptune')
+    category_array+=('dwarf%20planet')
+    category_array+=('asteroids%20and%20comets')
+    category_array+=('universe')
+    category_array+=('spacecraft%20and%20telescope')
+    
+    category=$(get.array.rand ${category_array[@]})
+    
+    dmsg 'Category: '"${category}"
+   
+    local URL='http://www.jpl.nasa.gov/spaceimages'
+    local BASE_URL="${URL}"'/searchwp.php?category='"${category}"
+    # step 1: get the number of pages on the category
+    local max_page=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+        egrep -o '/spaceimages/searchwp.php\?category='"${category}"'&currentpage=[0-9]+' |
+        tail -n1 | 
+        cut -f3 -d'='
+    )
+    local rand_page=$(( max_page * RANDOM / 32768 + 1))
+    local BASE_URL_PAGE=${BASE_URL}'&page='${rand_page}
+    # step 2: download a random page from that category
+    local PIC_URL=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL_PAGE}" |
+        egrep -o 'wallpaper.php\?id=[[:alnum:]]+'  | 
+        shuf -n1
+    )
+    # step 3: get the largest image
+    local image_url=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${URL}/${PIC_URL}" | 
+        egrep -o 'images/wallpaper/[[:alnum:]x-]+\.(jpg|png|gif|jpeg)' | 
+        tail -1
+    )
+    [[ ! -z $image_url ]] && {
+        echo ${URL}/${image_url}
+    }
+}
+
 http.get.url.calvinandhobbes(){
     dtitle 'calvin and hobbes - comic'
     check_in_path 'date'
@@ -150,6 +232,8 @@ http.get.url.calvinandhobbes(){
     local first_strip_date='1985-11-18'
     local date_strip=$(get.date.rand.since "${first_strip_date}")
     date_strip=${date_strip//-/\/} # fixing formatting
+ 
+    dmsg 'Date: '"${date_strip}"    
 
     local BASE_URL='http://www.gocomics.com/calvinandhobbes/'"${date_strip}"
     local image_url=$(
@@ -171,6 +255,8 @@ http.get.url.dilbert(){
     local first_strip_date='1989-04-16'
     
     local date_strip=$(get.date.rand.since "${first_strip_date}")
+    
+    dmsg 'Date: '"${date_strip}"    
     
     local BASE_URL='http://www.dilbert.com/'"${date_strip}"'/'
     local image_url=$(
@@ -561,35 +647,135 @@ http.get.url.nasa.iotd(){
 
 # >>>>>>>>>>> switch-board of flags
 
-# this will need to be replaced someday with a more custom logic that getopts ~azimut
-# ...that day gets closer and closer...perhaps using categories like comics, space, random
-while getopts ':h'"${GETOPTS_ARGS}" opt; do
+while getopts ':hn:a:c:w:m:' opt; do
     case $opt in
-        g) jpg=$(http.get.url.natgeo) ;;
-        i) jpg=$(http.get.url.nasa.iotd) ;;
-        a) jpg=$(http.get.url.nasa.apod) ;;
-        n) jpg=$(http.get.url.nasa.goes); FEH_OPT='--bg-max';;
-        f) jpg=$(http.get.url.fvalk); FEH_OPT='--bg-max' ;;
-        o) jpg=$(http.get.url.dienet.world);;
-        s) jpg=$(http.get.url.smn.satopes);;
-        m) jpg=$(http.get.url.nrlmry.nexsat);;
-        c) jpg=$(http.get.url.4walled);;
-        t) jpg=$(http.get.url.interfacelift);;
-        w) jpg=$(http.get.url.wallbase);;
-        b) jpg=$(http.get.url.bing);;
-        d) jpg=$(http.get.url.deviantart);;
-        e) jpg=$(http.get.url.reddit);;
-        u) jpg=$(http.get.url.imgur.subreddit);;
-        l) jpg=$(http.get.url.imgur.albums);;
-        z) jpg=$(http.get.url.chromecast);;
-        p) jpg=$(http.get.url.simpledesktops);;
-        x) jpg=$(http.get.url.xkcd.rand); FEH_OPT='--bg-center --image-bg black';;
-        k) jpg=$(http.get.url.eatthattoast); FEH_OPT='--bg-center --image-bg black';;
-        y) jpg=$(http.get.url.dilbert); FEH_OPT='--bg-center --image-bg black';;
-        v) jpg=$(http.get.url.calvinandhobbes); FEH_OPT='--bg-center --image-bg black';;
-        r) ((OPTIND--)); set -- $(get.flag.rand);;
-        h) help.usage;;
-        *) echoerr 'uError: option not supported. '; help.usage; exit 1;;
+        m)
+	    case $OPTARG in
+	        4walled)
+		    jpg=$(http.get.url.4walled)
+		    ;;
+		interfacelift)
+		    jpg=$(http.get.url.interfacelift)
+		    ;;
+		wallbase)
+		    jpg=$(http.get.url.wallbase)
+		    ;;
+		deviantart)
+		     jpg=$(http.get.url.deviantart)
+		     ;;
+		reddit)
+		    jpg=$(http.get.url.reddit)
+		    ;;
+		imgur.subreddit)
+		    jpg=$(http.get.url.imgur.subreddit)
+		    ;;
+		imgur.albums)
+		    jpg=$(http.get.url.imgur.albums)
+		    ;;
+		simpledesktops)
+		    jpg=$(http.get.url.simpledesktops)
+		    ;;
+		*)
+		    help.usage.misc
+		    exit 1
+                    ;;
+	    esac
+	    ;;
+        w)
+            case $OPTARG in
+                smn)
+                    jpg=$(http.get.url.smn.satopes)
+                    ;;
+                nasa.goes)
+		    jpg=$(http.get.url.nasa.goes)
+		    FEH_OPT='--bg-max'
+		    ;;
+                dienet)
+		    jpg=$(http.get.url.dienet.world)
+		    ;;
+		nexsat)
+		    jpg=$(http.get.url.nrlmry.nexsat)
+		    ;;
+		fvalk)
+		    jpg=$(http.get.url.fvalk)
+		    FEH_OPT='--bg-max'
+		    ;;
+		*)
+		    help.usage.weather
+		    exit 1
+                    ;;
+            esac
+            ;;
+        n)
+            case $OPTARG in
+                natgeo)
+                    jpg=$(http.get.url.natgeo)
+                    ;;
+                bing)
+                    jpg=$(http.get.url.bing)
+                    ;;
+                chromecast)
+                    jpg=$(http.get.url.chromecast)
+                    ;;
+                *)
+                    help.usage.nature
+                    exit 1
+                    ;;
+            esac
+            ;;
+        c)
+            case $OPTARG in
+                dilbert)
+                    jpg=$(http.get.url.dilbert)
+                    FEH_OPT='--bg-center --image-bg black'
+                    ;;
+                calvinandhobbes)
+                    jpg=$(http.get.url.calvinandhobbes)
+                    FEH_OPT='--bg-center --image-bg black'
+                    ;;
+                eatthattoast)
+                    jpg=$(http.get.url.eatthattoast)
+                    FEH_OPT='--bg-center --image-bg black'
+                    ;;
+                xkcd)
+                    jpg=$(http.get.url.xkcd.rand)
+                    FEH_OPT='--bg-center --image-bg black'
+                    ;;
+                *)
+                    help.usage.comics
+                    exit 1
+                    ;;
+            esac
+           ;;
+        a)
+            case $OPTARG in
+                nasa.iotd)
+                    jpg=$(http.get.url.nasa.iotd)
+                    ;;
+                nasa.apod)
+                    jpg=$(http.get.url.nasa.apod)
+                    ;;
+                nasa.jpl)
+                    jpg=$(http.get.url.nasa.jpl)
+                    ;;
+                *)
+                    help.usage.astronomy
+                    exit 1
+                    ;;
+            esac
+            ;;
+        \?) 
+            help.usage
+            exit 1;; 
+        :)
+            case $OPTARG in
+                a) help.usage.astronomy; exit 1;;
+                w) help.usage.weather;   exit 1;;
+                c) help.usage.comics;    exit 1;;
+                m) help.usage.misc;      exit 1;;
+                n) help.usage.nature;    exit 1;;
+            esac
+            ;;
     esac
 done
 
