@@ -1,9 +1,16 @@
 #!/bin/bash
 
+# Used by skymap.* wallpapers, default is Buenos Aires location and tz
+# http://en.wikipedia.org/wiki/List_of_cities_by_latitude
+# Negative latitude is south.
+# Negative longitude is West.
+LONGITUDE='-58'
+LATITUDE='-34'
+GMT='-3' 
+MYTZ='Arg' # needs more testing to know if this should be replaced for other locations
+
 FEH_OPT='--bg-fill'
 USER_AGENT='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
-GETOPTS_ARGS='ecgiafsmntwbrdoulzpxkyv'
-
 
 help.usage(){
     cat <<EOF
@@ -21,8 +28,11 @@ help.usage.astronomy(){
     cat <<EOF
     -a
         nasa.apod
-        nasa.iod
+        nasa.iotd
         nasa.jpl
+        skymap.astrobot
+        skymap.heavensabove
+        skymap.astronetru
 EOF
 }
 help.usage.comics(){
@@ -118,6 +128,53 @@ get.date.rand.since(){
     local random_day=$(( days_since * RANDOM / 32768 + 1 ))
     echo $(date --date="$random_day days ago" +%F)
 }
+
+date.string(){
+    if [[ ${GMT:0:1} == '-' ]]; then
+        echo ${GMT##-}'hour ago'
+    else
+        echo ${GMT}' hour'
+    fi
+}
+
+# Reference: https://github.com/thomaswsdyer/Julian-Date-Script
+#            https://gist.github.com/jiffyclub/1294443
+# Description: Gregorian to Reduced|Modified Julian-ish date
+#              minutes, seconds and microseconds are NOT calculated
+# Usage: f <year> <month> <day> <hour> <gmtoffset>
+# Disclaimer: I glued this together the best I could...but still prone to fail
+#             please improve it :)
+
+julianDate() {
+    jHour=$(echo $4' + ((-1)*'$5')' | bc)
+    jDay=$( echo 'scale=5; ('$jHour'/24)' | bc)
+    
+    gYear=$1
+    gMonth=$2
+    gDay=$( echo $3 ' + '$jDay | bc)
+
+    A=$(( ${gYear} / 100 ))
+    B=$(( ${A} / 4 ))
+    C=$(( 2 - ${A} + ${B} ))
+
+    D=$(
+        echo 'scale=10;( 365.25 * ('"${gYear}"' + 4716 ) )' |
+        bc | 
+        cut -f1 -d'.'
+    )
+
+    E=$(
+        echo 'scale=10; ( 30.6001 * ('"${gMonth}"' + 1 ) )' | 
+        bc |
+        cut -f1 -d'.'
+    )
+
+    jDate=$(echo "scale=5; "'('"${C}+${gDay}+${D}+${E}-1524.5"')' | bc)
+    jDate=$(echo 'scale=5; ( '$jDate' - 2400000.5 )' | bc)
+    
+    echo "$jDate"
+}
+
 # >>>>>>>>>>> cross-wm wallpaper setter 
 
 # Reference: http://bazaar.launchpad.net/~peterlevi/variety/trunk/view/head:/data/scripts/set_wallpaper
@@ -174,6 +231,54 @@ set.wallpaper(){
 # >>>>>>>>>>>
 # >>>>>>>>>>> real work is done here, they just return ONE url of an image
 # >>>>>>>>>>>
+
+# ut = universal time hours. It's actually a floating point number calculated from the minutes and seconds
+#      for practical reasons here is a integer
+
+http.get.url.skymap.astronetru(){
+    local year=$(date --date="$(date.string)" +%Y) month=$(date +%m) 
+    local day=$(date --date="$(date.string)" +%d) hour=$(date --date="$(date.string)" +%H)
+    local BASE_URL='http://www.astronet.ru:8105'
+    local ARGS='cgi-bin/skyc.cgi?'\
+'ut='${hour}'&day='"${day}"'&month='${month}'&year='${year}\
+'&longitude='$((LONGITUDE * (-1)))'&latitude='${LATITUDE}\
+'&azimuth=0&height=90&m=5.0&dgrids=0&dcbnd=0&dfig=1&colstars=0&names=0&xs=800&theme=0&dpl=1&drawmw=1&pdf=0&lang=0'
+    echo "${BASE_URL}/${ARGS}"
+}
+
+# Refence: http://www.skyandtelescope.com/astronomy-resources/online-star-charts
+# size = image size
+# SL = Constelations lines
+# SN = Constelations names
+# BW = Black and White flag
+# time = date time in Julian calendary
+# ecl = ecliptic line: The ecliptic is the apparent path of the Sun on the celestial sphere, and is the basis for the ecliptic coordinate system.
+# cb  = constelation boundaries
+http.get.url.skymap.heavenabove(){
+    check_in_path 'date'
+    check_in_path 'bc'
+    local year=$(date +%Y) month=$(date +%m) day=$(date +%d) hour=$(date +%H)
+    local size=1000
+    local jDate=$(julianDate $year $month $day $hour "${GMT}" )
+    local BASE_URL='http://www.heavens-above.com/wholeskychart.ashx?'\
+'lat='"${LATITUDE}"'&lng='"${LONGITUDE}"\
+'&loc=Unspecified&alt=79&tz='"${MYTZ}"'&'\
+'size='"${size}"'&'\
+'SL=1&SN=1&'\
+'BW=0&'\
+'time='${jDate}'&'\
+'ecl=1&'\
+'cb=0'
+
+    echo "${BASE_URL}"
+}
+
+http.get.url.skymap.astrobot(){
+    local URL='http://www.astrobot.eu/skymapserver'
+    local ARGS='skymap?type=gif&size=1000&colorset=0&lang=en&lat='$LATITUDE'&lon='$LONGITUDE'&timezone=UT&deco=15'
+    local image_url=${URL}/${ARGS}
+    echo "${image_url}"
+}
 
 http.get.url.nasa.jpl(){
     dtitle 'NASA - Jet Propulsion Laboratory'
@@ -629,7 +734,7 @@ http.get.url.smn.satopes(){
 http.get.url.nasa.iotd(){
     dtitle 'NASA Image of the day'
     check_in_path 'base64'
-    local BASE_URL='http://www.nasa.gov/rss/dyn/lg_image_of_the_day.rss'
+    local BASE_URL='http://www.nasa.gov/rss/dyn/image_of_the_day.rss'
     local html_url=$(base64 <(curl -A "${USER_AGENT}" -k -s -o- --header 'Accept-Encoding: gzip' "${BASE_URL}"))
     local ftype=$(echo "$html_url" | base64 --decode | file -)
     
@@ -757,6 +862,15 @@ while getopts ':hn:a:c:w:m:' opt; do
                     ;;
                 nasa.jpl)
                     jpg=$(http.get.url.nasa.jpl)
+                    ;;
+                skymap.astrobot)
+                    jpg=$(http.get.url.skymap.astrobot)
+                    ;;
+                skymap.heavensabove)
+                    jpg=$(http.get.url.skymap.heavenabove)
+                    ;;
+                skymap.astronetru)
+                    jpg=$(http.get.url.skymap.astronetru)
                     ;;
                 *)
                     help.usage.astronomy

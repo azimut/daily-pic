@@ -9,6 +9,9 @@ Get and set the image of the day from different sites:
 * nasa.apod
 * nasa.iod
 * nasa.jpl
+* skymap.astrobot
+* skymap.heavensabove
+* skymap.astronetru
 
 ### Comics
 * dilbert
