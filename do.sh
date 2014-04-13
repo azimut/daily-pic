@@ -131,9 +131,9 @@ get.date.rand.since(){
 
 date.string(){
     if [[ ${GMT:0:1} == '-' ]]; then
-        echo ${GMT##-}'hour ago'
+        echo ${GMT##-}'hour'
     else
-        echo ${GMT}' hour'
+        echo ${GMT}' hour ago'
     fi
 }
 
@@ -146,7 +146,7 @@ date.string(){
 #             please improve it :)
 
 julianDate() {
-    jHour=$(echo $4' + ((-1)*'$5')' | bc)
+    jHour=$4
     jDay=$( echo 'scale=5; ('$jHour'/24)' | bc)
     
     gYear=$1
@@ -236,7 +236,9 @@ set.wallpaper(){
 #      for practical reasons here is a integer
 
 http.get.url.skymap.astronetru(){
-    local year=$(date --date="$(date.string)" +%Y) month=$(date +%m) 
+    dtitle 'astronet.ru - skymap'
+    check_in_path 'date'
+    local year=$(date --date="$(date.string)" +%Y) month=$(date --date="$(date.string)" +%m) 
     local day=$(date --date="$(date.string)" +%d) hour=$(date --date="$(date.string)" +%H)
     local BASE_URL='http://www.astronet.ru:8105'
     local ARGS='cgi-bin/skyc.cgi?'\
@@ -255,11 +257,13 @@ http.get.url.skymap.astronetru(){
 # ecl = ecliptic line: The ecliptic is the apparent path of the Sun on the celestial sphere, and is the basis for the ecliptic coordinate system.
 # cb  = constelation boundaries
 http.get.url.skymap.heavenabove(){
+    dtitle 'heavenabove - skymap'
     check_in_path 'date'
     check_in_path 'bc'
-    local year=$(date +%Y) month=$(date +%m) day=$(date +%d) hour=$(date +%H)
+    local year=$(date --date="$(date.string)" +%Y) month=$(date --date="$(date.string)" +%m) 
+    local day=$(date --date="$(date.string)" +%d) hour=$(date --date="$(date.string)" +%H)
     local size=1000
-    local jDate=$(julianDate $year $month $day $hour "${GMT}" )
+    local jDate=$(julianDate $year $month $day $hour)
     local BASE_URL='http://www.heavens-above.com/wholeskychart.ashx?'\
 'lat='"${LATITUDE}"'&lng='"${LONGITUDE}"\
 '&loc=Unspecified&alt=79&tz='"${MYTZ}"'&'\
@@ -274,6 +278,7 @@ http.get.url.skymap.heavenabove(){
 }
 
 http.get.url.skymap.astrobot(){
+    dtitle 'astrobot - skymap'
     local URL='http://www.astrobot.eu/skymapserver'
     local ARGS='skymap?type=gif&size=1000&colorset=0&lang=en&lat='$LATITUDE'&lon='$LONGITUDE'&timezone=UT&deco=15'
     local image_url=${URL}/${ARGS}
