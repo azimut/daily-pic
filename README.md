@@ -4,7 +4,8 @@ daily-pic
 Get and set the image of the day from different sites:
 
 ![result](http://i.imgur.com/V6oPqpS.gif "example")
-![result2](http://i.imgur.com/uJ23Zr.gif "example2")
+![result2](http://i.imgur.com/uJ2W3Zr.gif "example2")
+
 ### Astronomy
 * nasa.apod
 * nasa.iod
