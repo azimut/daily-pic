@@ -6,7 +6,6 @@
 # Negative longitude is West.
 LONGITUDE='-58'
 LATITUDE='-34'
-GMT='-3' 
 MYTZ='Arg' # needs more testing to know if this should be replaced for other locations
 
 FEH_OPT='--bg-fill'
@@ -129,14 +128,6 @@ get.date.rand.since(){
     echo $(date --date="$random_day days ago" +%F)
 }
 
-date.string(){
-    if [[ ${GMT:0:1} == '-' ]]; then
-        echo ${GMT##-}'hour'
-    else
-        echo ${GMT}' hour ago'
-    fi
-}
-
 # Reference: https://github.com/thomaswsdyer/Julian-Date-Script
 #            https://gist.github.com/jiffyclub/1294443
 # Description: Gregorian to Reduced|Modified Julian-ish date
@@ -238,8 +229,8 @@ set.wallpaper(){
 http.get.url.skymap.astronetru(){
     dtitle 'astronet.ru - skymap'
     check_in_path 'date'
-    local year=$(date --date="$(date.string)" +%Y) month=$(date --date="$(date.string)" +%m) 
-    local day=$(date --date="$(date.string)" +%d) hour=$(date --date="$(date.string)" +%H)
+    local year=$(date --utc +%Y) month=$(date --utc +%m) 
+    local day=$(date --utc +%d) hour=$(date --utc +%H)
     local BASE_URL='http://www.astronet.ru:8105'
     local ARGS='cgi-bin/skyc.cgi?'\
 'ut='${hour}'&day='"${day}"'&month='${month}'&year='${year}\
@@ -260,8 +251,8 @@ http.get.url.skymap.heavenabove(){
     dtitle 'heavenabove - skymap'
     check_in_path 'date'
     check_in_path 'bc'
-    local year=$(date --date="$(date.string)" +%Y) month=$(date --date="$(date.string)" +%m) 
-    local day=$(date --date="$(date.string)" +%d) hour=$(date --date="$(date.string)" +%H)
+    local year=$(date --utc +%Y) month=$(date --utc +%m) 
+    local day=$(date --utc +%d) hour=$(date --utc +%H)
     local size=1000
     local jDate=$(julianDate $year $month $day $hour)
     local BASE_URL='http://www.heavens-above.com/wholeskychart.ashx?'\
