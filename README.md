@@ -37,6 +37,7 @@ Get and set the image of the day from different sites:
         
 ### Weather
 * nasa.goes
+* nasa.msfc
 * smn
 * dienet
 * fvalk

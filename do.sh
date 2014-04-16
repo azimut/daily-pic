@@ -69,6 +69,7 @@ help.usage.weather(){
     cat <<EOF
     -w 
         nasa.goes
+        nasa.msfc
         smn
         dienet
         fvalk
@@ -223,6 +224,24 @@ set.wallpaper(){
 # >>>>>>>>>>>
 # >>>>>>>>>>> real work is done here, they just return ONE url of an image
 # >>>>>>>>>>>
+
+# Reference: http://weather.msfc.nasa.gov/GOES/getsatellite.html
+http.get.url.nasa.msfc(){
+    local URL='http://weather.msfc.nasa.gov'
+    local ARGS='cgi-bin/get-goes?satellite=GOES-E%20FULL'\
+'&lat='"$LATITUDE"'&lon='"$LONGITUDE"''\
+'&zoom=2'\
+'&palette=ir6.pal'\
+'&colorbar=0'\
+'&width=1000&height=600'\
+'&quality=100'
+    local image_url=$(
+        curl -A "${USER_AGENT}" -k -s -o- ${URL}/${ARGS} |
+        grep jpg |
+        cut -f2 -d'"'        
+    )
+    echo "${URL}${image_url}"
+}
 
 # ut = universal time hours. It's actually a floating point number calculated from the minutes and seconds
 #      for practical reasons here is a integer
@@ -811,11 +830,14 @@ while getopts ':hn:a:c:w:m:' opt; do
 		    jpg=$(http.get.url.nasa.goes)
 		    FEH_OPT='--bg-max'
 		    ;;
+                nasa.msfc)
+                    jpg="$(http.get.url.nasa.msfc)"
+                    ;;
                 dienet)
 		    jpg=$(http.get.url.dienet.world)
 		    ;;
 		nexsat)
-		    jpg=$(http.get.url.nrlmry.nexsat)
+		    jpg="$(http.get.url.nrlmry.nexsat)"
 		    ;;
 		fvalk)
 		    jpg=$(http.get.url.fvalk)
