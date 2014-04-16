@@ -27,6 +27,7 @@ help.usage.astronomy(){
     cat <<EOF
     -a
         nasa.apod
+        nasa.apod.rand
         nasa.iotd
         nasa.jpl
         skymap.astrobot
@@ -664,6 +665,25 @@ http.get.url.interfacelift(){
     fi
 }
 
+http.get.url.nasa.apod.rand(){
+    dtitle 'NASA - rand() Astronomy picture of th day'
+    local BASE_URL='http://apod.nasa.gov/apod/archivepix.html'
+    local BASE_INDEX=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
+        egrep -o 'ap[0-9]*\.html' |
+        shuf -n1
+    )
+    local URL='http://apod.nasa.gov/apod'
+    local image_url=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${URL}"/"${BASE_INDEX}" |
+        egrep -m1 'jpg|png|gif' |
+        cut -f2 -d'"'
+    )
+    [[ ! -z $image_url ]] && {
+        echo "${URL}"/"${image_url}"
+    }
+}
+
 # https://gist.github.com/JoshSchreuder/882666
 http.get.url.nasa.apod(){
     dtitle 'NASA - Astronomy picture of the day'
@@ -855,6 +875,9 @@ while getopts ':hn:a:c:w:m:' opt; do
                     ;;
                 nasa.apod)
                     jpg=$(http.get.url.nasa.apod)
+                    ;;
+                nasa.apod.rand)
+                    jpg=$(http.get.url.nasa.apod.rand)
                     ;;
                 nasa.jpl)
                     jpg=$(http.get.url.nasa.jpl)
