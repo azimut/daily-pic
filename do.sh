@@ -895,11 +895,13 @@ while getopts ':hn:a:c:w:m:' opt; do
                     help.usage.astronomy
                     exit 1
                     ;;
-            esac
-            ;;
+            esac ;;
         \?) 
             help.usage
             exit 1;; 
+        h)
+            help.usage
+            exit 1;;
         :)
             case $OPTARG in
                 a) help.usage.astronomy; exit 1;;
@@ -907,8 +909,7 @@ while getopts ':hn:a:c:w:m:' opt; do
                 c) help.usage.comics;    exit 1;;
                 m) help.usage.misc;      exit 1;;
                 n) help.usage.nature;    exit 1;;
-            esac
-            ;;
+            esac ;;
     esac
 done
 
