@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Used by skymap.* wallpapers, default is Buenos Aires location and tz
+# Used by skymap.* wallpapers and nasa.msfc, default is Buenos Aires
 # http://en.wikipedia.org/wiki/List_of_cities_by_latitude
 # Negative latitude is south.
 # Negative longitude is West.
@@ -63,17 +63,24 @@ help.usage.nature(){
         bing
         chromecast
         natgeo
+        nasa.eo.iotd
 EOF
 }
 help.usage.weather(){
     cat <<EOF
     -w 
-        nasa.goes
-        nasa.msfc
-        smn
-        dienet
-        fvalk
-        nexsat
+        latlong.nasa.msfc
+        america.smn
+        america.nasa.goes
+        america.fvalk
+        america.s.aw
+        america.n.aw
+        globe.dienet.mercator
+        globe.dienet.peters
+        globe.dienet.mollweide
+        globe.dienet.rectangular
+        arg.smn
+        arg.nexsat
 EOF
 }
 # >>>>>>>>>>> helpers
@@ -225,8 +232,54 @@ set.wallpaper(){
 # >>>>>>>>>>> real work is done here, they just return ONE url of an image
 # >>>>>>>>>>>
 
+http.get.url.nasa.eo.iotd(){
+    dtitle 'nasa - earth observatory'
+    local BASE_URL='http://earthobservatory.nasa.gov/IOTD/'
+    local image_url=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+        fgrep front.jpg |
+        cut -f4 -d '"'
+    )
+    [[ ! -z $image_url ]] && {
+        image_url=${image_url/front/lrg}
+        echo "$image_url"
+    }
+}
+
+http.get.url.aw.america(){
+    dtitle 'aw - aviation weather '
+    check_in_path 'convert'
+    local URL=http://aviationweather.gov
+    local ARGS=data/obs/sat/intl/ir_ICAO-A.jpg
+    echo "${URL}/${ARGS}"
+}
+
+http.get.url.america.smn(){
+    dtitle 'smn - servicio meteorologico nacional argentino'
+    local URL='http://www.smn.gov.ar/vmsr'
+    local INDEX_URL=${URL}'/deluxe-tree.js'
+    local category=Globo itype=Topes
+    local fcategory=globo fitype=tn
+    local BASE_URL=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${INDEX_URL}" |
+        fgrep -A3 $category |
+        fgrep $itype |
+        cut -f4 -d'"'
+    )
+    local BASE_URL="${URL}/${BASE_URL}"
+    local image_url=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+        egrep -o '[a-z]+[0-9]+\.[0-9]+\.jpg' |
+        tail -n1
+    )
+    [[ ! -z $image_url ]] && {
+        echo "${URL}/imagenes/$fcategory/$fitype/${image_url}"
+    }
+}
+
 # Reference: http://weather.msfc.nasa.gov/GOES/getsatellite.html
 http.get.url.nasa.msfc(){
+    dtitle 'nasa'
     local URL='http://weather.msfc.nasa.gov'
     local ARGS='cgi-bin/get-goes?satellite=GOES-E%20FULL'\
 '&lat='"$LATITUDE"'&lon='"$LONGITUDE"''\
@@ -517,7 +570,8 @@ http.get.url.simpledesktops(){
 # Reference: https://github.com/andrewhood125/realtime-earth-wallpaper
 http.get.url.dienet.world(){
     dtitle 'dienet -  Image of earth'
-    local BASE_URL='http://static.die.net/earth/mercator'
+    local proyection=$1
+    local BASE_URL='http://static.die.net/earth/'$proyection
     local image_url="${BASE_URL}"/'1600.jpg'
     echo "${image_url}"
 }
@@ -823,23 +877,47 @@ while getopts ':hn:a:c:w:m:' opt; do
 	    ;;
         w)
             case $OPTARG in
-                smn)
+                arg.smn)
                     jpg=$(http.get.url.smn.satopes)
                     ;;
-                nasa.goes)
+                america.smn)
+                    jpg=$(http.get.url.america.smn)
+		    FEH_OPT='--bg-max'
+                    # is not mandatory have convert in this case
+                    hash convert &>/dev/null && \
+                        CONVERT_OPT='-stroke black -strokewidth 50 -draw "line 0,0 1000,0"'
+                    ;;
+                america.s.aw)
+                    jpg=$(http.get.url.aw.america)
+                    CONVERT_OPT='-gravity south -crop 100%x50% +repage'
+                    ;;
+                america.n.aw)
+                    jpg=$(http.get.url.aw.america)
+                    CONVERT_OPT='-gravity north -crop 100%x50% +repage'
+                    ;;
+                america.nasa.goes)
 		    jpg=$(http.get.url.nasa.goes)
 		    FEH_OPT='--bg-max'
 		    ;;
-                nasa.msfc)
+                latlong.nasa.msfc)
                     jpg="$(http.get.url.nasa.msfc)"
                     ;;
-                dienet)
-		    jpg=$(http.get.url.dienet.world)
+                globe.dienet.mercator)
+		    jpg=$(http.get.url.dienet.world 'mercator')
 		    ;;
-		nexsat)
+                globe.dienet.peters)
+		    jpg=$(http.get.url.dienet.world 'peters')
+		    ;;
+                globe.dienet.rectangular)
+		    jpg=$(http.get.url.dienet.world 'rectangular')
+		    ;;
+                globe.dienet.mollweide)
+		    jpg=$(http.get.url.dienet.world 'mollweide')
+		    ;;
+		arg.nexsat)
 		    jpg="$(http.get.url.nrlmry.nexsat)"
 		    ;;
-		fvalk)
+		america.fvalk)
 		    jpg=$(http.get.url.fvalk)
 		    FEH_OPT='--bg-max'
 		    ;;
@@ -859,6 +937,9 @@ while getopts ':hn:a:c:w:m:' opt; do
                     ;;
                 chromecast)
                     jpg=$(http.get.url.chromecast)
+                    ;;
+                nasa.eo.iotd)
+                    jpg=$(http.get.url.nasa.eo.iotd)
                     ;;
                 *)
                     help.usage.nature
@@ -948,7 +1029,13 @@ if [[ ! -z $jpg ]]; then
     
     # Reference: http://blog.yjl.im/2012/03/downloading-only-when-modified-using.html
     curl -A "${USER_AGENT}" -k --dump-header - "${jpg}" -z "${filename}" -o "${filename}" -s -L 2>/dev/null
-    
+   
+    [[ ! -z $CONVERT_OPT ]] && {
+        original_image="$filename"
+        filename="${PWD}"'/wp.png'
+        eval convert "${original_image}" ${CONVERT_OPT} $filename
+    }
+     
     set.wallpaper "${filename}"
         
     echo 'URL:  '"${jpg}"
