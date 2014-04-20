@@ -744,6 +744,7 @@ http.get.url.nasa.apod.rand(){
     local BASE_INDEX=$(
         curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
         egrep -o 'ap[0-9]*\.html' |
+        head -n2000 |
         shuf -n1
     )
     local URL='http://apod.nasa.gov/apod'
@@ -883,17 +884,15 @@ while getopts ':hn:a:c:w:m:' opt; do
                 america.smn)
                     jpg=$(http.get.url.america.smn)
 		    FEH_OPT='--bg-max'
-                    # is not mandatory have convert in this case
-                    hash convert &>/dev/null && \
-                        CONVERT_OPT='-stroke black -strokewidth 50 -draw "line 0,0 1000,0"'
+                    CONVERT_OPT=(-stroke black -strokewidth 50 -draw "line 0,0 1000,0")
                     ;;
                 america.s.aw)
                     jpg=$(http.get.url.aw.america)
-                    CONVERT_OPT='-gravity south -crop 100%x50% +repage'
+                    CONVERT_OPT=(-gravity south -crop 100%x50% +repage)
                     ;;
                 america.n.aw)
                     jpg=$(http.get.url.aw.america)
-                    CONVERT_OPT='-gravity north -crop 100%x50% +repage'
+                    CONVERT_OPT=(-gravity north -crop 100%x50% +repage)
                     ;;
                 america.nasa.goes)
 		    jpg=$(http.get.url.nasa.goes)
@@ -987,12 +986,15 @@ while getopts ':hn:a:c:w:m:' opt; do
                     ;;
                 skymap.astrobot)
                     jpg=$(http.get.url.skymap.astrobot)
+                    FEH_OPT='--bg-max --image-bg black'
+                    CONVERT_OPT=(-stroke black -strokewidth 50 -draw "line 0,0 250,0" -draw "line 750,0 1000,0" -draw "line 0,1000 250,1000" -draw "line 750,1000 1000,1000")
+
                     ;;
                 skymap.heavensabove)
                     jpg=$(http.get.url.skymap.heavenabove)
                     ;;
                 skymap.astronetru)
-                    jpg=$(http.get.url.skymap.astronetru)
+                    FEH_OPT='--bg-max --image-bg black'
                     ;;
                 *)
                     help.usage.astronomy
@@ -1030,10 +1032,11 @@ if [[ ! -z $jpg ]]; then
     # Reference: http://blog.yjl.im/2012/03/downloading-only-when-modified-using.html
     curl -A "${USER_AGENT}" -k --dump-header - "${jpg}" -z "${filename}" -o "${filename}" -s -L 2>/dev/null
    
-    [[ ! -z $CONVERT_OPT ]] && {
+    # here we check again if convert is intalled, because is not always mandatory
+    [[ ! -z $CONVERT_OPT ]] && hash convert &>/dev/null && {
         original_image="$filename"
         filename="${PWD}"'/wp.png'
-        eval convert "${original_image}" ${CONVERT_OPT} $filename
+        convert "${original_image}" "${CONVERT_OPT[@]}" $filename
     }
      
     set.wallpaper "${filename}"

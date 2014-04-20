@@ -8,6 +8,7 @@ Get and set the image of the day from different sites:
 
 ### Astronomy
 * nasa.apod
+* nasa.apod.rand
 * nasa.iod
 * nasa.jpl
 * skymap.astrobot
@@ -34,14 +35,21 @@ Get and set the image of the day from different sites:
 * bing
 * chromecast
 * natgeo
+* nasa earth observatory iotd
         
 ### Weather
-* nasa.goes
-* nasa.msfc
-* smn
-* dienet
-* fvalk
-* nexsat
+*  latlong.nasa.msfc
+*  america.smn
+*  america.nasa.goes
+*  america.fvalk
+*  america.s.aw
+*  america.n.aw
+*  globe.dienet.mercator
+*  globe.dienet.peters
+*  globe.dienet.mollweide
+*  globe.dienet.rectangular
+*  arg.smn
+*  arg.nexsat
 
 Feel free to add your own source :)
 
