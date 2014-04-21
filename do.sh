@@ -11,16 +11,30 @@ MYTZ='Arg' # needs more testing to know if this should be replaced for other loc
 FEH_OPT='--bg-fill'
 USER_AGENT='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.66 Safari/537.36'
 
+# used by flashcards, make sure it's installed or change it to one of your prefference
+FONT_PATH='/usr/share/fonts/TTF/sazanami-gothic.ttf'
+
 help.usage(){
     cat <<EOF
-Usage: $0 [-hacnwm] <site>
+Usage: $0 [-hacnwmf] <site>
 
 EOF
     help.usage.astronomy
     help.usage.comics
+    help.usage.flashcards
     help.usage.misc
     help.usage.nature
     help.usage.weather
+}
+
+help.usage.flashcards(){
+    cat <<EOF
+    -f
+        hiragana
+        katakana
+        kanji
+        goterms
+EOF
 }
 
 help.usage.astronomy(){
@@ -103,7 +117,7 @@ check_in_path 'feh'
 check_in_path 'curl'
 check_in_path 'shuf'
 
-[[ $# -eq 0 || $# -ge 3 ]] && { 
+[[ $# -eq 0 ]] && { 
     echoerr "uError: Missing argument."
     help.usage
     exit 1
@@ -232,16 +246,301 @@ set.wallpaper(){
 # >>>>>>>>>>> real work is done here, they just return ONE url of an image
 # >>>>>>>>>>>
 
+# Reference: https://github.com/taeram/zen-wallpaper
+#            for a simple version of flashcards look at:
+#            http://github.com/azimut/scripts/scripts/
+
+# Reference: http://symbolcodes.tlt.psu.edu/bylanguage/japanesecharthiragana.html
+flashcard.hiragana(){
+    dtitle 'flashcard - hiragana'
+    check_in_path 'convert'
+    declare -A hiragana
+    hiragana=(
+        [あ]='a'  [い]='i'  [う]='u'  [え]='e'  [お]='o'
+        [か]='ka' [き]='ki' [く]='ku' [け]='ke' [こ]='ko'
+        [が]='ga' [ぎ]='gi' [ぐ]='gu' [げ]='ge' [ご]='go'
+        [さ]='sa' [し]='si' [す]='su' [せ]='se' [そ]='so'
+        [ざ]='za' [じ]='zi' [ず]='zu' [ぜ]='ze' [ぞ]='zo'
+        [た]='ta' [ち]='ti' [つ]='tu' [て]='te' [と]='to'
+        [だ]='da' [ぢ]='di' [づ]='du' [で]='de' [ど]='do'
+        [な]='na' [に]='ni' [ぬ]='nu' [ね]='ne' [の]='no'
+        [は]='ha' [ひ]='hi' [ふ]='hu' [へ]='he' [ほ]='ho'
+        [ば]='ba' [び]='bi' [ぶ]='bu' [べ]='be' [ぼ]='bo'
+        [ぱ]='pa' [ぴ]='pi' [ぷ]='pu' [ぺ]='pe' [ぽ]='po'
+        [ま]='ma' [み]='mi' [む]='mu' [め]='me' [も]='mo'
+        [や]='ya'           [ゆ]='yu'           [よ]='yo'
+        [ら]='ra' [り]='ri' [る]='ru' [れ]='re' [ろ]='ro'
+        [わ]='wa' [ゐ]='wi'           [ゑ]='we' [を]='wo'
+        [ん]='n'
+        [ゔ]='vu'
+    )
+    rand_char=$(echo ${!hiragana[@]} | tr ' ' '\n' | shuf -n1)
+    rand_desc=${hiragana[$rand_char]}
+    echo "${rand_char}"'@'"${rand_desc}"
+}
+
+# Reference: http://symbolcodes.tlt.psu.edu/bylanguage/japanesechartkatakana.html
+flashcard.katakana(){
+    dtitle 'flashcard - katakana'
+    check_in_path 'convert'
+    declare -A katakana
+    katakana=(
+        [ア]='a'  [イ]='i'  [ウ]='u'  [エ]='e'  [オ]='o'
+        [カ]='ka' [キ]='ki' [ク]='ku' [ケ]='ke' [コ]='ko'
+        [ガ]='ga' [ギ]='gi' [グ]='gu' [ゲ]='ge' [ゴ]='go'
+        [サ]='sa' [シ]='si' [ス]='su' [セ]='se' [ソ]='so'
+        [ザ]='za' [ジ]='zi' [ズ]='zu' [ゼ]='ze' [ゾ]='zo'
+        [タ]='ta' [チ]='ti' [ツ]='tu' [テ]='te' [ト]='to'
+        [ダ]='da' [ヂ]='di' [ヅ]='du' [デ]='de' [ド]='do'
+        [ナ]='na' [ニ]='ni' [ヌ]='nu' [ネ]='ne' [ノ]='no'
+        [ハ]='ha' [ヒ]='hi' [フ]='hu' [ヘ]='he' [ホ]='ho'
+        [バ]='ba' [ビ]='bi' [ブ]='bu' [ベ]='be' [ボ]='bo'
+        [パ]='pa' [ピ]='pi' [プ]='pu' [ペ]='pe' [ポ]='po'
+        [マ]='ma' [ミ]='mi' [ム]='mu' [メ]='me' [モ]='mo'
+        [ヤ]='ya'           [ユ]='yu'           [ヨ]='yo'
+        [ラ]='ra' [リ]='ri' [ル]='ru' [レ]='re' [ロ]='ro'
+        [ワ]='wa' [ヰ]='wi'           [ヱ]='we' [ヲ]='wo'
+        [ン]='n     '
+        [ヴ]='vu' [ヷ]='va' [ヸ]='vi' [ヹ]='ve' [ヺ]='vo'
+    )
+    rand_char=$(echo ${!katakana[@]} | tr ' ' '\n' | shuf -n1)
+    rand_desc=${katakana[$rand_char]}
+    echo "${rand_char}"'@'"${rand_desc}"
+}
+
+# Reference: http://japanese.about.com/od/kan2/a/100kanji.htm
+flashcard.kanji(){
+    dtitle 'flashcard - kanji'
+    check_in_path 'convert'
+    declare -A kanji
+    kanji=(
+        [日]='sun'
+        [一]='one'
+        [大]='big'
+        [年]='year'
+        [中]='middle'
+        [会]='to meet'
+        [人]='human being, people'
+        [本]='book'
+        [月]='moon, month'
+        [長]='long'
+        [国]='country'
+        [出]='to go out'
+        [上]='up, top'
+        [十]='ten'
+        [生]='life'
+        [子]='child'
+        [分]='minute'
+        [東]='east'
+        [三]='three'
+        [行]='to go'
+        [同]='same'
+        [今]='now'
+        [高]='high, expensive'
+        [金]='money, gold'
+        [時]='time'
+        [手]='hand'
+        [見]='to see, to look'
+        [市]='city'
+        [力]='power'
+        [米]='rice'
+        [自]='oneself'
+        [前]='before'
+        [円]='Yen (Japanese currency)'
+        [合]='to combine'
+        [立]='to stand'
+        [内]='inside'
+        [二]='two'
+        [事]='affair, matter'
+        [社]='company, society'
+        [者]='person'
+        [地]='ground, place'
+        [京]='capital'
+        [間]='interval, between'
+        [田]='rice field'
+        [体]='body'
+        [学]='to study'
+        [下]='down, under'
+        [目]='eye'
+        [五]='five'
+        [後]='after'
+        [新]='new'
+        [明]='bright, clear'
+        [方]='direction'
+        [部]='section'
+        [女]='woman'
+        [八]='eight'
+        [心]='heart'
+        [四]='four'
+        [民]='people, nation'
+        [対]='opposite'
+        [主]='main, master'
+        [正]='right, correct'
+        [代]='to substitute, generation'
+        [言]='to say'
+        [九]='nine'
+        [小]='small'
+        [思]='to think'
+        [七]='seven'
+        [山]='mountain'
+        [実]='real'
+        [入]='to enter'
+        [回]='to turn around, time'
+        [場]='place'
+        [野]='field'
+        [開]='to open'
+        [万]='ten thousand'
+        [全]='whole'
+        [定]='to fix'
+        [家]='house'
+        [北]='north'
+        [六]='six'
+        [問]='question'
+        [話]='to speak'
+        [文]='letter, writings'
+        [動]='to move'
+        [度]='degree, time'
+        [県]='prefecture'
+        [水]='water'
+        [安]='inexpensive, peaceful'
+        [氏]='courtesy name (Mr., Mister)'
+        [和]='harmonious, peace'
+        [政]='government, politics'
+        [保]='to maintain, to keep'
+        [表]='to express, surface'
+        [道]='way'
+        [相]='phase, mutual'
+        [意]='mind, meaning'
+        [発]='to start, to emit'
+        [不]='not, un~, in~'
+        [党]='political party'
+    )
+    rand_char=$(echo ${!kanji[@]} | tr ' ' '\n' | shuf -n1)
+    rand_desc=${kanji[$rand_char]}
+    echo "${rand_char}"'@'"${rand_desc}"
+}
+flashcard.goterms(){
+    dtitle 'flashcard - kanji'
+    check_in_path 'convert'
+    declare -A goterms
+    goterms=(
+        ['Aji']='A weakness that is left behind in the opponent s position.
+Has been translated as flavor, aftertaste,  and \"funny business\".
+Typically it can be exploited in more than one way.'
+        ['Atari']='A move that reduces a stone or chain of stones to one liberty.
+The stones with one liberty are said to be \"in atari\".
+An atari play that reduce one s own stones liberties to one is \"self-atari\".
+an atari against two groups is \"double atari\".
+Stones in atari can be captured on the opponents next turn unless they are defended.'
+        ['Capturing race']='A race to fill in the liberties of two groups,
+neither of which can live independently.
+Also called semeai.'
+        ['Chain']='A group of stones that are directly adjacent along the lines of the board.
+The stones in a chain share liberties and live or die as a unit.
+Also string.'
+        ['Connection']='A play that joins two stones or chains into a single chain by connecting them along the lines of the board.
+or that makes it possible for them to be so joined even if the opponent were to play first.
+or that makes it unprofitable for the opponent to actively separate them.'
+        ['Cut']='A move which separates two or more of a player s stones by occupying a point adjacent to them.'
+        ['Dame']='1) Any empty point adjacent to a stone.
+2) a neutral point between established Black and White positions which does not count as territory for either player.'
+        ['Damezumari']='Inability to play at a tactically desirable point due to lack of liberties.'
+        ['Death']='A group is dead when its owner cannot,
+playing first with correct play,
+make it live with two eyes or in seki or make a ko for life,
+given accurate play by the opponent.'
+        ['Dragon']='A dragon is a long connected shape spanning large areas of the board.'
+        ['Endgame']='The final stage of the game.'
+        ['Eye']='An empty space surrounded by one player s stones such that none of them can be brought into atari separately.'
+        ['False Eye']='An empty space surrounded by one player s units such that at least one of them can be brought into atari separately.'
+        ['Fuseki']='A Japanese go term meaning arraying forces for battle.
+it refers to the initial phase of the game,
+especially before there are any weak groups.'
+        ['Geta']='See Net.'
+        ['Gote']='1) A move or sequence of moves that does not have to be answered.
+2) a move or sequence of moves that is not answered.'
+        ['Group']='One or more stones considered as a unit.'
+        ['Hane']='A single stone that \"reaches around\" the outside of an opposing unit diagonally,
+adjacent but unconnected to an existing unit.'
+        ['Handicap']='Stones that Black (the weaker player) places on the board before White s first move to ensure a more balanced contest.'
+        ['Honte']='A solid move.'
+        ['Influence']='The effect stones exert at a distance.'
+        ['Invasion']='Play made inside an enemy framework with the intention of living or escaping.'
+        ['Joseki']='Established sequences of play considered equitable for both players,
+especially early moves near a corner.'
+        ['Kikashi']='A Japanese go term adopted into English (forcing move) for a sente move that produces a certain effect and can then be abandoned without regret.'
+        ['Killing']='Ensuring that a group will ultimately perish and be removed from the board.'
+        ['Ko']='A position in which single stones could be captured back and forth
+indefinitely were there not a rule forbidding such repetition.'
+        ['Ko Threat']='A threatening move played either to provoke an immediate response from the opponent,
+allowing the player to recapture the ko on his next move,
+or to make a gain if the opponent ignores it.'
+        ['Komi']='Points added to a player s score,
+normally given to White in compensation for Black s advantage in playing first.'
+        ['Ladder']='A technique for capturing stones where at each step,
+the attacker reduces the defender s liberties from two to one: especially an attack of this type that proceeds diagonally across the board.'
+        ['Liberty']='1) A dame.
+2) a move required to capture a stone or group.'
+        ['Life']='State where a group has two eyes,
+lives in seki or is secure enough to survive any attack.'
+        ['Miai']='Two moves that have equivalent effects,
+such that if either player plays one,
+his opponent will play the other.'
+        ['Moyo']='A territorial framework,
+an extensive area loosely bounded by one player s stones,
+where the other has yet to establish any defensible positions,
+and which consequently could become the former s territory.'
+        ['Net']='A technique that ensures the capture of one or more stones by blocking their access to open board areas.'
+        ['Omoyo']='A large scale Moyo (territorial framework).'
+        ['Peep']='A threat to cut (nozoki in Japanese) played directly or diagonally adjacent to a cutting point.'
+        ['Point']='The intersection of two lines on the go board.'
+        ['Ponnuki']='Capture of a single stone above the first line by four opposing stones,
+leaving a diamond shape.'
+        ['Sabaki']='Development of a flexible and defensible position in an area of opposing forces,
+especially by means of contact plays and sacrifice tactics.'
+        ['Sansan']='3-3 point on the goban.'
+        ['Seki']='A Japanese go term adopted into English,  meaning 
+an impasse in which stones are alive without two eyes 
+because the opponent cannot or should not capture them.
+Also known as mutual life.'
+        ['Semeai']='A Capturing Race.'
+        ['Semedori']='A situation in which dead stones must eventually be captured.'
+        ['Sente']='1) The initiative.
+ 2) a play that must be answered.
+ 3) a play that is answered.'
+        ['Shape']='relative positions of stones of one color in close proximity.'
+        ['Shicho']='A Ladder.'
+        ['Tengen']='The center point of the goban.'
+        ['Tenuki']='A Japanese go term adopted into English that denotes playing elsewhere,
+especially breaking off from a sequence that remains to be resolved.'
+        ['Territory']='1) A region of the board that belongs to one player because it is surrounded 
+by stones belonging to a living group,
+and in which the opponent cannot make a living group.
+2) a region which almost belongs to one player.'
+        ['Tesuji']='An astute,
+often counter-intuitive tactical play that optimally exploits a defect in the opposing shapes.'
+        ['Tsumego']='A life and death problem.'
+        ['Vital Point']='A key point (for either player) in the local,
+or perhaps less commonly global,
+context that will normally either establish a good shape or force the opponent into bad shape.'
+        ['Yose']='A Japanese go term adopted into English,
+meaning moves that approach fairly stable territory,
+typically enlarging one s own territory while reducing the opponent s.'
+    )
+    rand_char=$(echo ${!goterms[@]} | tr ' ' '\n' | shuf -n1)
+    rand_desc=${goterms[$rand_char]}
+    echo "${rand_char}"'@'"${rand_desc}"
+}
 http.get.url.nasa.eo.iotd(){
     dtitle 'nasa - earth observatory'
     local BASE_URL='http://earthobservatory.nasa.gov/IOTD/'
     local image_url=$(
         curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
-        fgrep front.jpg |
+        fgrep '"lf"' |
         cut -f4 -d '"'
     )
     [[ ! -z $image_url ]] && {
-        image_url=${image_url/front/lrg}
+        image_url=${image_url/.jpg/_lrg.jpg}
         echo "$image_url"
     }
 }
@@ -842,7 +1141,7 @@ http.get.url.nasa.iotd(){
 
 # >>>>>>>>>>> switch-board of flags
 
-while getopts ':hn:a:c:w:m:' opt; do
+while getopts ':hn:a:c:w:m:f:' opt; do
     case $opt in
         m)
 	    case $OPTARG in
@@ -970,6 +1269,37 @@ while getopts ':hn:a:c:w:m:' opt; do
                     ;;
             esac
            ;;
+        f)
+            case $OPTARG in
+                hiragana)
+                    mytext=$(flashcard.hiragana)
+                    ;;
+                katakana)
+                    mytext=$(flashcard.katakana)
+                    ;;
+                kanji)
+                    mytext=$(flashcard.kanji)
+                    ;;
+                goterms)
+                    mytext=$(flashcard.goterms)
+                    ;;
+                *)
+                    help.usage.flashcards
+                    exit 1
+                    ;;
+            esac 
+            [[ ! -z $mytext ]] && {
+                mytitle=$( echo "${mytext}" | cut -s -f1 -d'@')
+                mydesc=$(echo "${mytext}"  | cut -f2 -d'@')
+                CONVERT_FCARD=(-font ${FONT_PATH})
+                CONVERT_FCARD+=(-interword-spacing 9 -kerning 0)
+                # twice to add shadows
+                CONVERT_FCARD+=(-pointsize 200 -draw 'gravity center fill black text 3,3 "'"${mytitle}"'"')
+                CONVERT_FCARD+=(-pointsize 200 -draw 'gravity center fill white text 0,0 "'"${mytitle}"'"')
+                CONVERT_FCARD+=(-pointsize 30 -draw 'gravity center fill black text 2,152 "'"${mydesc}"'"')
+                CONVERT_FCARD+=(-pointsize 30 -draw 'gravity center fill white text 0,150 "'"${mydesc}"'"')
+            }
+            ;;
         a)
             case $OPTARG in
                 nasa.iotd)
@@ -987,8 +1317,9 @@ while getopts ':hn:a:c:w:m:' opt; do
                 skymap.astrobot)
                     jpg=$(http.get.url.skymap.astrobot)
                     FEH_OPT='--bg-max --image-bg black'
-                    CONVERT_OPT=(-stroke black -strokewidth 50 -draw "line 0,0 250,0" -draw "line 750,0 1000,0" -draw "line 0,1000 250,1000" -draw "line 750,1000 1000,1000")
-
+                    CONVERT_OPT=(-stroke black -strokewidth 50)
+                    CONVERT_OPT+=(-draw "line 0,0 250,0"       -draw "line 750,0 1000,0")
+                    CONVERT_OPT+=(-draw "line 0,1000 250,1000" -draw "line 750,1000 1000,1000")
                     ;;
                 skymap.heavensabove)
                     jpg=$(http.get.url.skymap.heavenabove)
@@ -1014,6 +1345,7 @@ while getopts ':hn:a:c:w:m:' opt; do
                 c) help.usage.comics;    exit 1;;
                 m) help.usage.misc;      exit 1;;
                 n) help.usage.nature;    exit 1;;
+                f) help.usage.flashcards;exit 1;;
             esac ;;
     esac
 done
@@ -1025,22 +1357,38 @@ cd pics
 
 # >>>>>>>>>>> Dowload the image AND set it as wallpaper
 
+# DOWNLOAD IMAGE
 if [[ ! -z $jpg ]]; then
     pic_name=${jpg##*/}
     filename="${PWD}/${pic_name}"
     
+    echo '[+] Downloading image...' 
     # Reference: http://blog.yjl.im/2012/03/downloading-only-when-modified-using.html
     curl -A "${USER_AGENT}" -k --dump-header - "${jpg}" -z "${filename}" -o "${filename}" -s -L 2>/dev/null
-   
-    # here we check again if convert is intalled, because is not always mandatory
+    
+    # Apply convert filter to downloaded image
     [[ ! -z $CONVERT_OPT ]] && hash convert &>/dev/null && {
         original_image="$filename"
         filename="${PWD}"'/wp.png'
+        echo '[+] Cleaning up downloaded image...'
         convert "${original_image}" "${CONVERT_OPT[@]}" $filename
     }
-     
+fi
+
+# Apply flashcard
+if [[ ! -z $CONVERT_FCARD ]]; then
+        echo '[+] Writing flashcard over image...'
+        if [[ ! -z $filename ]]; then
+            convert $filename "${CONVERT_FCARD[@]}" $filename
+        else
+            filename="${PWD}"'/wp.png'
+            convert -size 1280x800 xc:black "${CONVERT_FCARD[@]}" $filename
+        fi
+        echo
+fi
+
+if [[ ! -z $filename ]]; then
     set.wallpaper "${filename}"
-        
-    echo 'URL:  '"${jpg}"
-    echo 'FILE: '"${filename}"
+    [[ ! -z $jpg ]] && echo 'URL:  '"${jpg}"
+    echo 'FILE: '"${picname:-$filename}"
 fi

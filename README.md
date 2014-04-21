@@ -21,6 +21,12 @@ Get and set the image of the day from different sites:
 * eatthattoast
 * xkcd
 
+### Flashcards
+* hiragana
+* katakana
+* kanji
+* go terms
+
 ### Misc
 * 4walled
 * interfacelift
