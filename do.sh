@@ -1379,7 +1379,9 @@ fi
 if [[ ! -z $CONVERT_FCARD ]]; then
         echo '[+] Writing flashcard over image...'
         if [[ ! -z $filename ]]; then
-            convert $filename "${CONVERT_FCARD[@]}" $filename
+            source_image=$filename
+            filename="${PWD}"'/wp.png'
+            convert $source_image "${CONVERT_FCARD[@]}" $filename
         else
             filename="${PWD}"'/wp.png'
             convert -size 1280x800 xc:black "${CONVERT_FCARD[@]}" $filename
@@ -1390,5 +1392,9 @@ fi
 if [[ ! -z $filename ]]; then
     set.wallpaper "${filename}"
     [[ ! -z $jpg ]] && echo 'URL:  '"${jpg}"
-    echo 'FILE: '"${picname:-$filename}"
+    if [[ ! -z $pic_name ]]; then
+        echo 'FILE: '$PWD/"${pic_name}"
+    else
+        echo 'FILE: '$filename
+    fi
 fi
