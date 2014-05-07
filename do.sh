@@ -99,9 +99,11 @@ EOF
 }
 # >>>>>>>>>>> helpers
 
-echoerr() { echo "$@" 1>&2; }
-dtitle()  { echo -en '# '"$@"'\n\n' 1>&2; }
-dmsg()  { echo -en '- '"$@"'\n\n' 1>&2; }
+echostep() { echo -en '\x1b[34;01m[*]\x1b[39;49;00m ';      echo "$@"; }
+echoerr()  { echo -en '\x1b[31;01m[-]\x1b[39;49;00m ' 1>&2; echo "$@" 1>&2; }
+echoinf()  { echo -en '\x1b[32;01m[+]\x1b[39;49;00m ' 1>&2; echo "$@" 1>&2; }
+dtitle()   { echo -en '\x1b[32;01m[+]\x1b[39;49;00m ' 1>&2; echo "$@" 1>&2; }
+dmsg()     { echo -en '\x1b[32;01m[+]\x1b[39;49;00m ' 1>&2; echo "$@" 1>&2; }
 
 # >>>>>>>>>>> checking minimum requirements and argument is present
 
@@ -1362,7 +1364,7 @@ if [[ ! -z $jpg ]]; then
     pic_name=${jpg##*/}
     filename="${PWD}/${pic_name}"
     
-    echo '[+] Downloading image...' 
+    echostep 'Downloading image...' 
     # Reference: http://blog.yjl.im/2012/03/downloading-only-when-modified-using.html
     curl -A "${USER_AGENT}" -k --dump-header - "${jpg}" -z "${filename}" -o "${filename}" -s -L 2>/dev/null
     
@@ -1370,14 +1372,14 @@ if [[ ! -z $jpg ]]; then
     [[ ! -z $CONVERT_OPT ]] && hash convert &>/dev/null && {
         original_image="$filename"
         filename="${PWD}"'/wp.png'
-        echo '[+] Cleaning up downloaded image...'
+        echostep 'Applying convert filter to image...'
         convert "${original_image}" "${CONVERT_OPT[@]}" $filename
     }
 fi
 
 # Apply flashcard
 if [[ ! -z $CONVERT_FCARD ]]; then
-        echo '[+] Writing flashcard over image...'
+        echostep 'Writing flashcard over image...'
         if [[ ! -z $filename ]]; then
             source_image=$filename
             filename="${PWD}"'/wp.png'
@@ -1390,6 +1392,7 @@ if [[ ! -z $CONVERT_FCARD ]]; then
 fi
 
 if [[ ! -z $filename ]]; then
+    echostep 'Setting wallpaper...'
     set.wallpaper "${filename}"
     [[ ! -z $jpg ]] && echo 'URL:  '"${jpg}"
     if [[ ! -z $pic_name ]]; then
