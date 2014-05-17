@@ -4,7 +4,6 @@ daily-pic
 Get and set the image of the day from different sites:
 
 ![result](http://i.imgur.com/V6oPqpS.gif "example")
-![result2](http://i.imgur.com/uJ2W3Zr.gif "example2")
 
 ### Astronomy
 * nasa.apod
@@ -20,12 +19,6 @@ Get and set the image of the day from different sites:
 * calvinandhobbes
 * eatthattoast
 * xkcd
-
-### Flashcards
-* hiragana
-* katakana
-* kanji
-* go terms
 
 ### Misc
 * 4walled
@@ -58,6 +51,8 @@ Get and set the image of the day from different sites:
 *  arg.nexsat
 
 Feel free to add your own source :)
+
+![result2](http://i.imgur.com/uJ2W3Zr.gif "example2")
 
 Usage
 -----
