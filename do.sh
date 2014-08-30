@@ -55,6 +55,7 @@ help.usage.misc(){
         reddit
         deviantart
         simpledesktops
+	fractionmagazine
 EOF
 }
 help.usage.nature(){
@@ -491,10 +492,10 @@ http.get.url.chromecast(){
     local image_url=$(
         curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
         egrep -o 'JSON\.parse[^)]+' |
-        tr -d '\\' |
+        tr -d '\\[' |
         cut -f2 -d"'" |
         tr ',' '\n' |
-        grep 'https' |
+        fgrep 'https' |
         shuf -n1
     )
 
@@ -841,6 +842,45 @@ http.get.url.nasa.iotd(){
         echo "${image_url}"
     fi
 }
+http.get.url.fractionmagazine(){
+    dtitle 'Japan Fraction Magazine'
+    local BASE_URL='http://www.fractionmagazinejapan.com/'
+    # step 1: get the japananese index page, aparently change according to the latest issue
+    local jpn_index_relpath=$( curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" \
+                               | egrep -m1 -o 'jpne/.*/.*.html')
+    # step 2: get a random magazine url
+    local magazine_relpath=$( curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}"${jpn_index_relpath} \
+                               | grep '号</a' \
+			       | cut -f2 -d'"' \
+			       | cut -f2,3 -d/ \
+			       | shuf -n 1)
+    local magazine_dir=${magazine_relpath%/*}
+    # step 3: get the pages on that magazine
+#    local magazine_pages=($( curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}jpne/${magazine_relpath}"\
+#                             | grep -m1 bdnavi-numbers2 \
+#			     | tr '<' '\n' \
+#			     | grep href \
+#			     | cut -f2 -d'"'))
+#    magazine_pages+=(${magazine_relpath##*/})
+    # step 4: select a random page:
+#    local magazine_page=$(get.array.rand ${magazine_pages[@]})
+    local magazine_page=${magazine_relpath##*/}
+    # step 5: select gallery on the magazine
+    local gallery_relpath=$( curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}"jpne/"${magazine_dir}/${magazine_page}" \
+                             | grep '<p><span class="img"><a' \
+			     | cut -f4 -d'"' \
+			     | shuf -n1)
+    # step 6: return photo
+    image_url=$( curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}"jpne/${magazine_dir}/${gallery_relpath} \
+                 | grep '^<span class="img">' \
+		 | cut -f4 -d'"' \
+		 | cut -f3- -d/ \
+		 | shuf -n1)
+
+    if [[ ! -z $image_url ]]; then
+        echo "${BASE_URL}""${image_url}"
+    fi
+}
 
 # >>>>>>>>>>> switch-board of flags
 
@@ -871,6 +911,9 @@ while getopts ':hn:a:c:w:m:' opt; do
 		    ;;
 		simpledesktops)
 		    jpg=$(http.get.url.simpledesktops)
+		    ;;
+		fractionmagazine)
+		    jpg=$(http.get.url.fractionmagazine)
 		    ;;
 		*)
 		    help.usage.misc
