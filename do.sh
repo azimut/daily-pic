@@ -536,10 +536,7 @@ http.get.url.imgur.subreddit(){
     local -a BASE_URL_ARRAY
     BASE_URL_ARRAY+=('r/cyberpunk')
     BASE_URL_ARRAY+=('r/wallpapers')
-    BASE_URL_ARRAY+=('r/ImaginaryLandscapes')
-    BASE_URL_ARRAY+=('r/ImaginaryMonsters')
-    BASE_URL_ARRAY+=('r/ImaginaryCharacters')
-    BASE_URL_ARRAY+=('r/ImaginaryTechnology')
+    BASE_URL_ARRAY+=('r/ImaginaryLandscapes+ImaginaryMonsters+ImaginaryCharacters+ImaginaryTechnology')
     BASE_URL_ARRAY+=('r/SpecArt')
     BASE_URL_ARRAY+=('r/glitch_art')
 
