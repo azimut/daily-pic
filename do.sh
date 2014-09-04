@@ -536,8 +536,15 @@ http.get.url.imgur.subreddit(){
     local -a BASE_URL_ARRAY
     BASE_URL_ARRAY+=('r/cyberpunk')
     BASE_URL_ARRAY+=('r/wallpapers')
+    BASE_URL_ARRAY+=('r/ImaginaryLandscapes')
+    BASE_URL_ARRAY+=('r/ImaginaryMonsters')
+    BASE_URL_ARRAY+=('r/ImaginaryCharacters')
+    BASE_URL_ARRAY+=('r/ImaginaryTechnology')
+    BASE_URL_ARRAY+=('r/SpecArt')
+    BASE_URL_ARRAY+=('r/glitch_art')
 
     local BASE_URL=$(get.array.rand ${BASE_URL_ARRAY[@]})
+    dmsg 'Category: '"${BASE_URL}"
     local page=$((10 * RANDOM / 32768 + 1))
     
     BASE_URL='https://api.imgur.com/3/gallery/'"${BASE_URL}"'/time/'"${page}"'/images.xml'
