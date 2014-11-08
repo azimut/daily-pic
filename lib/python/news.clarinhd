@@ -1,0 +1,10 @@
+#!/usr/bin/env python
+from urllib2 import urlopen
+from BeautifulSoup import BeautifulSoup
+
+main_url = 'http://hd.clarin.com/'
+
+soup = BeautifulSoup(urlopen(main_url))
+
+print soup.findAll('div', {"class":"post clearfix index photo"})[0]\
+          .find('img')['src']

@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+
+from urllib2 import urlopen
+from BeautifulSoup import BeautifulSoup
+
+main_url='http://www.euronews.com/picture-of-the-day/'
+
+soup = BeautifulSoup(urlopen(main_url))
+
+print soup.find('div', {"id": "potd-wrap"})\
+          .find('img')['src']
+
+#print soup.find('div', {"id": "potd-wrap"})\
+#          .find('div', {"id":"image-caption"})\
+#          .findAll('p')[0]\
+#          .text
