@@ -106,6 +106,14 @@ check_in_path 'feh'
 check_in_path 'curl'
 check_in_path 'shuf'
 
+python_check_in_path(){
+    local module_name="$@"
+    python -c 'import '"${module_name}" &>/dev/null || {
+        echoerr "uError: python module \"${module_name}\" not installed, please install it with pip or from your distro repositories."
+        exit 1
+    }
+}
+
 [[ $# -eq 0 ]] && { 
     echoerr "uError: Missing argument."
     help.usage
