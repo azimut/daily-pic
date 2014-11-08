@@ -19,6 +19,7 @@ EOF
     help.usage.astronomy
     help.usage.comics
     help.usage.misc
+		help.usage.news
     help.usage.nature
     help.usage.weather
 }
@@ -65,6 +66,14 @@ help.usage.nature(){
         chromecast
         natgeo
         nasa.eo.iotd
+EOF
+}
+help.usage.news(){
+    cat <<EOF
+    -e 
+        clarinhd
+        euronews
+        reuters
 EOF
 }
 help.usage.weather(){
@@ -242,6 +251,30 @@ set.wallpaper(){
 # >>>>>>>>>>>
 # >>>>>>>>>>> real work is done here, they just return ONE url of an image
 # >>>>>>>>>>>
+
+http.get.url.news.reuters(){
+	dtitle 'news - reuters'
+	python_check_in_path 'BeautifulSoup'
+	python_check_in_path 'urllib2'
+
+	python lib/python/news.reuters.py
+}
+
+http.get.url.news.euronews(){
+	dtitle 'news - euronews - picture of the day'
+	python_check_in_path 'BeautifulSoup'
+	python_check_in_path 'urllib2'
+
+	python lib/python/news.euronews
+}
+
+http.get.url.news.clarinhd(){
+	dtitle 'news - clarinhd - picture of the day'
+	python_check_in_path 'BeautifulSoup'
+	python_check_in_path 'urllib2'
+	
+	python lib/python/news.clarinhd
+}
 
 http.get.url.nasa.eo.iotd(){
     dtitle 'nasa - earth observatory'
@@ -896,7 +929,7 @@ http.get.url.fractionmagazine(){
 
 # >>>>>>>>>>> switch-board of flags
 
-while getopts ':hn:a:c:w:m:' opt; do
+while getopts ':hn:a:c:w:m:e:' opt; do
     case $opt in
         m)
 	    case $OPTARG in
@@ -1003,6 +1036,23 @@ while getopts ':hn:a:c:w:m:' opt; do
                     ;;
             esac
             ;;
+        e)
+            case $OPTARG in
+                clarinhd)
+                    jpg=$(http.get.url.news.clarinhd)
+                    ;;
+                euronews)
+                    jpg=$(http.get.url.news.euronews)
+                    ;;
+								reuters)
+									  jpg=$(http.get.url.news.reuters)
+										;;
+                *)
+                    help.usage.news
+                    exit 1
+                    ;;
+            esac
+            ;;
         c)
             case $OPTARG in
                 dilbert)
@@ -1068,6 +1118,7 @@ while getopts ':hn:a:c:w:m:' opt; do
         :)
             case $OPTARG in
                 a) help.usage.astronomy; exit 1;;
+                e) help.usage.news; exit 1;;
                 w) help.usage.weather;   exit 1;;
                 c) help.usage.comics;    exit 1;;
                 m) help.usage.misc;      exit 1;;
