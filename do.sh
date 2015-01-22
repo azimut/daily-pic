@@ -530,19 +530,19 @@ http.get.url.xkcd.rand(){
 http.get.url.chromecast(){
     dtitle 'chromecast - wallpaper'
     local BASE_URL='https://clients3.google.com/cast/chromecast/home/v/c9541b08'
-    local image_url=$(
+    local image_url="$(
         curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
         egrep -o 'JSON\.parse[^)]+' |
         tr -d '\\[' |
         cut -f2 -d"'" |
         tr ',' '\n' |
         fgrep 'https' |
+        sed -e 's/x22\(.*\)x22/\1/g' | 
+				fgrep .jpg |
         shuf -n1
-    )
+    )"
 
     [[ ! -z $image_url ]] && {
-        image_url=${image_url:3}
-        image_url=${image_url:0:-3}
         echo "${image_url}"
     }
 }
