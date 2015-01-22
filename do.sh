@@ -50,7 +50,7 @@ help.usage.misc(){
     -m
         4walled
         interfacelift
-        wallbase
+        wallhaven
         imgur.albums
         imgur.subreddit
         reddit
@@ -679,40 +679,38 @@ http.get.url.bing(){
     fi
 }
 
-#BASE_URL_ARRAY+=('http://wallbase.cc/random')
+http.get.url.wallhaven(){
+    dtitle 'wallhaven.cc - random wallpaper, from different topics'
 
-# https://github.com/jabbalaci/Wallpaper-Downloader-and-Rotator-for-Gnome
-http.get.url.wallbase(){
-    dtitle 'wallbase.cc - random wallpaper, from different topics'
-    local -a BASE_URL_ARRAY
-    BASE_URL_ARRAY+=('tag=8135&order=random')  # outer-space
-    BASE_URL_ARRAY+=('tag=11544&order=random') # cyberpunk
-    BASE_URL_ARRAY+=('tag=41408')              # mandelbrot
-    BASE_URL_ARRAY+=('tag=17756')              # historic
-    BASE_URL_ARRAY+=('tag=12637')              # maps
-    BASE_URL_ARRAY+=('tag=20118')              # manga
-    BASE_URL_ARRAY+=('tag=8383')               # dc comics
-    BASE_URL_ARRAY+=('tag=44153&order=random') # vertigo comics
-    BASE_URL_ARRAY+=('tag=8208')               # cityscapes
-    BASE_URL_ARRAY+=('tag=8023')               # landscapes
-    BASE_URL_ARRAY+=('tag=18787')              # board games
-    BASE_URL_ARRAY+=('tag=10896&order=random') # subway
-    BASE_URL_ARRAY+=('tag=9620&order=random')  # telescope 
-    BASE_URL_ARRAY+=('tag=8911&order=random')  # silhouettes
-    BASE_URL_ARRAY+=('tag=11563&order=random') # national geographic
-    BASE_URL_ARRAY+=('tag=17339&order=random') # macro
-    BASE_URL_ARRAY+=('tag=8664&order=random')  # leaves
-    BASE_URL_ARRAY+=('tag=8190&order=random')  # autum
+    local -a TAGS
+    TAGS+=('outer-space')
+    TAGS+=('cyberpunk')
+    TAGS+=('fractals')
+    TAGS+=('painting')
+    TAGS+=('cityscapes')
+    TAGS+=('landscapes')
+    TAGS+=('subway')
+    TAGS+=('lens')
+    TAGS+=('macro')
+    TAGS+=('leaves')
 
-    local BASE_URL='http://wallbase.cc/search?'$(get.array.rand ${BASE_URL_ARRAY[@]})
+    BASE_URL='http://alpha.wallhaven.cc/search?q=%23'"$(get.array.rand ${TAGS[@]})"
+    BASE_URL="${BASE_URL}"'&categories=111&purity=110&sorting=random&order=desc'
 
-    local image_url=$(
-        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
-        egrep -o 'http://thumbs.wallbase.cc//[[:alpha:]-]+/thumb-[0-9]+.(jpg|png|jpeg)' | 
+    local image_preview=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL[*]}" | 
+        egrep -o 'alpha.wallhaven.cc/wallpaper/[0-9]+' | 
+        sort -d |
+        uniq |
         shuf -n1
     )
-    image_url=${image_url/thumb-/wallpaper-}
-    image_url=${image_url/thumbs/wallpapers}
+
+    local image_url=$(
+        curl -A "${USER_AGENT}" -k -s -o- "${image_preview}" |
+				egrep -o 'wallpapers.wallhaven.cc/wallpapers/full/wallhaven-[0-9]+\.(jpg|png|jpeg)' |
+        head -n1
+    )
+    
     if [[ ! -z $image_url ]]; then
         echo "${image_url}"
     fi
@@ -937,8 +935,8 @@ while getopts ':hn:a:c:w:m:e:' opt; do
                 interfacelift)
                     jpg=$(http.get.url.interfacelift)
                     ;;
-                wallbase)
-                    jpg=$(http.get.url.wallbase)
+                wallhaven)
+                    jpg=$(http.get.url.wallhaven)
                     ;;
                 deviantart)
                      jpg=$(http.get.url.deviantart)

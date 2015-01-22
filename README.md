@@ -23,7 +23,7 @@ Get and set the image of the day from different sites:
 ### Misc
 * 4walled
 * interfacelift
-* wallbase
+* wallhaven
 * imgur.albums
 * imgur.subreddit
 * reddit
