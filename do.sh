@@ -19,7 +19,7 @@ EOF
     help.usage.astronomy
     help.usage.comics
     help.usage.misc
-		help.usage.news
+    help.usage.news
     help.usage.nature
     help.usage.weather
 }
@@ -56,7 +56,7 @@ help.usage.misc(){
         reddit
         deviantart
         simpledesktops
-	fractionmagazine
+        fractionmagazine
 EOF
 }
 help.usage.nature(){
@@ -253,27 +253,27 @@ set.wallpaper(){
 # >>>>>>>>>>>
 
 http.get.url.news.reuters(){
-	dtitle 'news - reuters'
-	python_check_in_path 'BeautifulSoup'
-	python_check_in_path 'urllib2'
-
-	python lib/python/news.reuters.py
+    dtitle 'news - reuters'
+    python_check_in_path 'BeautifulSoup'
+    python_check_in_path 'urllib2'
+    
+    python lib/python/news.reuters.py
 }
 
 http.get.url.news.euronews(){
-	dtitle 'news - euronews - picture of the day'
-	python_check_in_path 'BeautifulSoup'
-	python_check_in_path 'urllib2'
-
-	python lib/python/news.euronews
+    dtitle 'news - euronews - picture of the day'
+    python_check_in_path 'BeautifulSoup'
+    python_check_in_path 'urllib2'
+    
+    python lib/python/news.euronews
 }
 
 http.get.url.news.clarinhd(){
-	dtitle 'news - clarinhd - picture of the day'
-	python_check_in_path 'BeautifulSoup'
-	python_check_in_path 'urllib2'
-	
-	python lib/python/news.clarinhd
+    dtitle 'news - clarinhd - picture of the day'
+    python_check_in_path 'BeautifulSoup'
+    python_check_in_path 'urllib2'
+    
+    python lib/python/news.clarinhd
 }
 
 http.get.url.nasa.eo.iotd(){
@@ -656,12 +656,10 @@ http.get.url.deviantart(){
 http.get.url.reddit(){
     dtitle 'reddit - /r/wallpapers'
     local BASE_URL='http://www.reddit.com/r/wallpapers/.json'
-    local image_url=$(
-        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
-	    tr ' ' '\n' | 
-	    egrep -o 'http://i.imgur.com/[[:alnum:]]+\.(png|jpg)' | 
-	    shuf -n1
-    )
+    local image_url=$( curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" \
+                       | tr ' ' '\n' \
+                       | egrep -o 'http://i.imgur.com/[[:alnum:]]+\.(png|jpg)' \
+                       | shuf -n1 )
     if [[ ! -z ${image_url} ]]; then
         echo "${image_url}"
     fi
@@ -674,7 +672,7 @@ http.get.url.bing(){
     local IMAGE_BASE_URL='http://www.bing.com'
     local image_url=$(
         curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
-	    sed -E 's/.*"url":"([^"]+)"[,\}].*/\1/g' 
+        sed -E 's/.*"url":"([^"]+)"[,\}].*/\1/g' 
     )
     if [[ ! -z ${image_url} ]]; then
         echo "${IMAGE_BASE_URL}""${image_url}"
@@ -710,8 +708,8 @@ http.get.url.wallbase(){
 
     local image_url=$(
         curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
-	    egrep -o 'http://thumbs.wallbase.cc//[[:alpha:]-]+/thumb-[0-9]+.(jpg|png|jpeg)' | 
-	    shuf -n1
+        egrep -o 'http://thumbs.wallbase.cc//[[:alpha:]-]+/thumb-[0-9]+.(jpg|png|jpeg)' | 
+        shuf -n1
     )
     image_url=${image_url/thumb-/wallpaper-}
     image_url=${image_url/thumbs/wallpapers}
@@ -740,18 +738,18 @@ http.get.url.nrlmry.nexsat(){
 http.get.url.4walled(){
     dtitle '4walled - random wallpaper'
     # board=
-    #	1 -- /w/   -- Anime/Wallpapers
-    #	2 -- /wg/  -- Wallpapers/General
-    #	3 -- 7chan -- 7chan
-    #	4 -- /hr/  -- NSFW/High Resolution
+    # 1 -- /w/   -- Anime/Wallpapers
+    # 2 -- /wg/  -- Wallpapers/General
+    # 3 -- 7chan -- 7chan
+    # 4 -- /hr/  -- NSFW/High Resolution
     #         --       -- ALL
     local board=
     
     # sfw=
-    #	-1 -- unrated
-    #	 0 -- Safe for work
-    #    1 -- Borderline
-    #    2 -- NSFW
+    # -1 -- unrated
+    #  0 -- Safe for work
+    #  1 -- Borderline
+    #  2 -- NSFW
     local sfw=0
     
     local URL='http://4walled.cc/search.php?tags=&board'${board}'=&width_aspect=1024x133&searchstyle=larger&sfw='"${sfw}"'&search=random'
@@ -762,8 +760,8 @@ http.get.url.4walled(){
     )
     local image_url=$(
         curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
-	fgrep -m1 'href="http' | 
-	cut -f2 -d'"'
+        fgrep -m1 'href="http' | 
+        cut -f2 -d'"'
     )
     if [[ ! -z $image_url ]]; then
         echo "${image_url}"
@@ -849,8 +847,8 @@ http.get.url.fvalk(){
     local dust='GOES-12'
     local image_url=$(
         curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
-    	grep -m1 "${dust}" | 
-	    cut -f6 -d'"'
+        grep -m1 "${dust}" | 
+        cut -f6 -d'"'
     )
     if [[ ! -z $image_url ]]; then
         echo "${IMAGE_BASE_URL}""${image_url}"
@@ -881,7 +879,7 @@ http.get.url.nasa.iotd(){
     else
         html_url=$(echo "$html_url" | base64 --decode )
     fi
-    	
+    
     image_url=$(echo "$html_url" | fgrep -m1 enclosure | cut -f2 -d'"' )
     if [[ ! -z $image_url ]]; then
         echo "${image_url}"
@@ -896,16 +894,16 @@ http.get.url.fractionmagazine(){
     # step 2: get a random magazine url
     local magazine_relpath=$( curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}"${jpn_index_relpath} \
                                | grep '号</a' \
-			       | cut -f2 -d'"' \
-			       | cut -f2,3 -d/ \
-			       | shuf -n 1)
+                               | cut -f2 -d'"' \
+                               | cut -f2,3 -d/ \
+                               | shuf -n 1)
     local magazine_dir=${magazine_relpath%/*}
     # step 3: get the pages on that magazine
 #    local magazine_pages=($( curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}jpne/${magazine_relpath}"\
 #                             | grep -m1 bdnavi-numbers2 \
-#			     | tr '<' '\n' \
-#			     | grep href \
-#			     | cut -f2 -d'"'))
+#                             | tr '<' '\n' \
+#                             | grep href \
+#                             | cut -f2 -d'"'))
 #    magazine_pages+=(${magazine_relpath##*/})
     # step 4: select a random page:
 #    local magazine_page=$(get.array.rand ${magazine_pages[@]})
@@ -913,14 +911,14 @@ http.get.url.fractionmagazine(){
     # step 5: select gallery on the magazine
     local gallery_relpath=$( curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}"jpne/"${magazine_dir}/${magazine_page}" \
                              | grep '<p><span class="img"><a' \
-			     | cut -f4 -d'"' \
-			     | shuf -n1)
+                             | cut -f4 -d'"' \
+                             | shuf -n1)
     # step 6: return photo
     image_url=$( curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}"jpne/${magazine_dir}/${gallery_relpath} \
                  | grep '^<span class="img">' \
-		 | cut -f4 -d'"' \
-		 | cut -f3- -d/ \
-		 | shuf -n1)
+                 | cut -f4 -d'"' \
+                 | cut -f3- -d/ \
+                 | shuf -n1)
 
     if [[ ! -z $image_url ]]; then
         echo "${BASE_URL}""${image_url}"
@@ -932,40 +930,40 @@ http.get.url.fractionmagazine(){
 while getopts ':hn:a:c:w:m:e:' opt; do
     case $opt in
         m)
-	    case $OPTARG in
-	        4walled)
-		    jpg=$(http.get.url.4walled)
-		    ;;
-		interfacelift)
-		    jpg=$(http.get.url.interfacelift)
-		    ;;
-		wallbase)
-		    jpg=$(http.get.url.wallbase)
-		    ;;
-		deviantart)
-		     jpg=$(http.get.url.deviantart)
-		     ;;
-		reddit)
-		    jpg=$(http.get.url.reddit)
-		    ;;
-		imgur.subreddit)
-		    jpg=$(http.get.url.imgur.subreddit)
-		    ;;
-		imgur.albums)
-		    jpg=$(http.get.url.imgur.albums)
-		    ;;
-		simpledesktops)
-		    jpg=$(http.get.url.simpledesktops)
-		    ;;
-		fractionmagazine)
-		    jpg=$(http.get.url.fractionmagazine)
-		    ;;
-		*)
-		    help.usage.misc
-		    exit 1
+            case $OPTARG in
+                4walled)
+                    jpg=$(http.get.url.4walled)
                     ;;
-	    esac
-	    ;;
+                interfacelift)
+                    jpg=$(http.get.url.interfacelift)
+                    ;;
+                wallbase)
+                    jpg=$(http.get.url.wallbase)
+                    ;;
+                deviantart)
+                     jpg=$(http.get.url.deviantart)
+                     ;;
+                reddit)
+                    jpg=$(http.get.url.reddit)
+                    ;;
+                imgur.subreddit)
+                    jpg=$(http.get.url.imgur.subreddit)
+                    ;;
+                imgur.albums)
+                    jpg=$(http.get.url.imgur.albums)
+                    ;;
+                simpledesktops)
+                    jpg=$(http.get.url.simpledesktops)
+                    ;;
+                fractionmagazine)
+                    jpg=$(http.get.url.fractionmagazine)
+                    ;;
+                *)
+                    help.usage.misc
+                    exit 1
+                    ;;
+            esac
+        ;;
         w)
             case $OPTARG in
                 arg.smn)
@@ -973,7 +971,7 @@ while getopts ':hn:a:c:w:m:e:' opt; do
                     ;;
                 america.smn)
                     jpg=$(http.get.url.america.smn)
-		    FEH_OPT='--bg-max'
+                    FEH_OPT='--bg-max'
                     CONVERT_OPT=(-stroke black -strokewidth 50 -draw "line 0,0 1000,0")
                     ;;
                 america.s.aw)
@@ -985,34 +983,34 @@ while getopts ':hn:a:c:w:m:e:' opt; do
                     CONVERT_OPT=(-gravity north -crop 100%x50% +repage)
                     ;;
                 america.nasa.goes)
-		    jpg=$(http.get.url.nasa.goes)
-		    FEH_OPT='--bg-max'
-		    ;;
+                    jpg=$(http.get.url.nasa.goes)
+                    FEH_OPT='--bg-max'
+                    ;;
                 latlong.nasa.msfc)
                     jpg="$(http.get.url.nasa.msfc)"
                     ;;
                 globe.dienet.mercator)
-		    jpg=$(http.get.url.dienet.world 'mercator')
-		    ;;
+                    jpg=$(http.get.url.dienet.world 'mercator')
+                    ;;
                 globe.dienet.peters)
-		    jpg=$(http.get.url.dienet.world 'peters')
-		    ;;
+                    jpg=$(http.get.url.dienet.world 'peters')
+                    ;;
                 globe.dienet.rectangular)
-		    jpg=$(http.get.url.dienet.world 'rectangular')
-		    ;;
+                    jpg=$(http.get.url.dienet.world 'rectangular')
+                    ;;
                 globe.dienet.mollweide)
-		    jpg=$(http.get.url.dienet.world 'mollweide')
-		    ;;
-		arg.nexsat)
-		    jpg="$(http.get.url.nrlmry.nexsat)"
-		    ;;
-		america.fvalk)
-		    jpg=$(http.get.url.fvalk)
-		    FEH_OPT='--bg-max'
-		    ;;
-		*)
-		    help.usage.weather
-		    exit 1
+                    jpg=$(http.get.url.dienet.world 'mollweide')
+                    ;;
+                arg.nexsat)
+                    jpg="$(http.get.url.nrlmry.nexsat)"
+                    ;;
+                america.fvalk)
+                    jpg=$(http.get.url.fvalk)
+                    FEH_OPT='--bg-max'
+                    ;;
+                *)
+                    help.usage.weather
+                    exit 1
                     ;;
             esac
             ;;
@@ -1044,9 +1042,9 @@ while getopts ':hn:a:c:w:m:e:' opt; do
                 euronews)
                     jpg=$(http.get.url.news.euronews)
                     ;;
-								reuters)
-									  jpg=$(http.get.url.news.reuters)
-										;;
+                reuters)
+                    jpg=$(http.get.url.news.reuters)
+                    ;;
                 *)
                     help.usage.news
                     exit 1
