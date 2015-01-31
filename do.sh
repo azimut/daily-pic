@@ -126,7 +126,6 @@ python_check_in_path(){
 [[ $# -eq 0 ]] && { 
     echoerr "uError: Missing argument."
     help.usage
-    exit 1
 }
 
 
@@ -628,15 +627,15 @@ http.get.url.dienet.world(){
 http.get.url.deviantart(){
     dtitle 'deviantart - random wallpaper, from different topics'
     local -a BASE_URL_ARRAY
-    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/scifi/')        # !!
-    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/3d/')
-    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/abstract/')
-    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/fantasy/')
-    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/fractals/')     # !!
-    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/widescreen/')   # !!
-    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/scenery/')      # !!
-    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/minimalistic/') # !!
-    BASE_URL_ARRAY+=('http://www.deviantart.com/customization/wallpaper/technical/')    # !!
+    BASE_URL_ARRAY+=('http://www.deviantart.com/browse/all/customization/wallpaper/scifi/')        # !!
+    BASE_URL_ARRAY+=('http://www.deviantart.com/browse/all/customization/wallpaper/3d/')
+    BASE_URL_ARRAY+=('http://www.deviantart.com/browse/all/customization/wallpaper/abstract/')
+    BASE_URL_ARRAY+=('http://www.deviantart.com/browse/all/customization/wallpaper/fantasy/')
+    BASE_URL_ARRAY+=('http://www.deviantart.com/browse/all/customization/wallpaper/fractals/')     # !!
+    BASE_URL_ARRAY+=('http://www.deviantart.com/browse/all/customization/wallpaper/widescreen/')   # !!
+    BASE_URL_ARRAY+=('http://www.deviantart.com/browse/all/customization/wallpaper/scenery/')      # !!
+    BASE_URL_ARRAY+=('http://www.deviantart.com/browse/all/customization/wallpaper/minimalistic/') # !!
+    BASE_URL_ARRAY+=('http://www.deviantart.com/browse/all/customization/wallpaper/technical/')    # !!
 
     local BASE_URL=$(get.array.rand ${BASE_URL_ARRAY[@]})
 
