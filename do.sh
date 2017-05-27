@@ -654,10 +654,10 @@ http.get.url.deviantart(){
 # Reference: https://github.com/wmmc/Wallpaper-Downloader
 http.get.url.reddit(){
     dtitle 'reddit - /r/wallpapers'
-    local BASE_URL='http://www.reddit.com/r/wallpapers/.json'
+    local BASE_URL='https://www.reddit.com/r/wallpapers/.json'
     local image_url=$( curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" \
                        | tr ' ' '\n' \
-                       | egrep -o 'http://i.imgur.com/[[:alnum:]]+\.(png|jpg)' \
+                       | egrep -o '(http://i.imgur.com/[[:alnum:]]+\.(png|jpg))|(https://i.redditmedia.com/.+.jpg\?s=[[:alnum:]]+)' \
                        | shuf -n1 )
     if [[ ! -z ${image_url} ]]; then
         echo "${image_url}"
