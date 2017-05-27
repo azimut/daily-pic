@@ -922,6 +922,9 @@ http.get.url.fractionmagazine(){
     fi
 }
 
+# stop here if we are being sourced
+[[ "${BASH_SOURCE[0]}" != "${0}" ]] && return 0
+
 # >>>>>>>>>>> switch-board of flags
 
 while getopts ':hn:a:c:w:m:e:' opt; do
