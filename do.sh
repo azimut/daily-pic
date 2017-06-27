@@ -57,6 +57,7 @@ help.usage.misc(){
         deviantart
         simpledesktops
         fractionmagazine
+        yandere
 EOF
 }
 help.usage.nature(){
@@ -921,7 +922,13 @@ http.get.url.fractionmagazine(){
         echo "${BASE_URL}""${image_url}"
     fi
 }
-
+http.get.url.yandere(){
+    dtitle 'yandere - landscapes'
+    local page=$((20 * RANDOM / 32768 + 1))
+    local BASE_URL='https://yande.re/post.xml?limit=50&tags=landscape&page='${page}
+    local image_url="$( curl -A "${USER_AGENT}" "${BASE_URL}" -k -s -o- | grep 'post id' | cut -f42 -d'"'  | shuf -n1)"
+    echo "${image_url}"
+}
 # stop here if we are being sourced
 [[ "${BASH_SOURCE[0]}" != "${0}" ]] && return 0
 
@@ -957,6 +964,9 @@ while getopts ':hn:a:c:w:m:e:' opt; do
                     ;;
                 fractionmagazine)
                     jpg=$(http.get.url.fractionmagazine)
+                    ;;
+                yandere)
+                    jpg=$(http.get.url.yandere)
                     ;;
                 *)
                     help.usage.misc
