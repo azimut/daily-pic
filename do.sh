@@ -58,6 +58,7 @@ help.usage.misc(){
         simpledesktops
         fractionmagazine
         yandere
+        konachan
 EOF
 }
 help.usage.nature(){
@@ -929,6 +930,13 @@ http.get.url.yandere(){
     local image_url="$( curl -A "${USER_AGENT}" "${BASE_URL}" -k -s -o- | grep 'post id' | cut -f42 -d'"'  | shuf -n1)"
     echo "${image_url}"
 }
+http.get.url.konachan(){
+    dtitle 'konachan - scenic'
+    local page=$((20 * RANDOM / 32768 + 1))
+    local BASE_URL='https://konachan.com/post.xml?limit=50&tags=scenic&page='${page}
+    local image_url="$( curl -A "${USER_AGENT}" "${BASE_URL}" -k -s -o- | grep 'post actual' | cut -f58 -d'"'  | shuf -n1)"
+    echo http:"${image_url}"
+}
 # stop here if we are being sourced
 [[ "${BASH_SOURCE[0]}" != "${0}" ]] && return 0
 
@@ -967,6 +975,9 @@ while getopts ':hn:a:c:w:m:e:' opt; do
                     ;;
                 yandere)
                     jpg=$(http.get.url.yandere)
+                    ;;
+                konachan)
+                    jpg=$(http.get.url.konachan)
                     ;;
                 *)
                     help.usage.misc
