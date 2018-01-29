@@ -213,6 +213,18 @@ set.wallpaper(){
 #    hash gsettings &>/dev/null || \
 #    hash xfconf-query &>/dev/null || \
     DISPLAY=:0.0 feh ${FEH_OPT} "${WP}"
+    colors=( $(convert "${WP}" -resize %25 \
+                                           -colors 3 \
+                                           -unique-colors txt:- \
+                | awk '{print $3}' \
+                | tail -n+2) )
+    sed -i -e 's/^theme.border_normal[[:space:]]*=[[:space:]]*".*".*/theme.border_normal = "'${colors[0]}'"/g' ~/.config/awesome/rc.lua
+    sed -i -e 's/^theme.border_focus[[:space:]]*=[[:space:]]*".*".*/theme.border_focus = "'${colors[2]}'"/g' ~/.config/awesome/rc.lua
+
+    sed -i -e 's/^theme.fg_minimize[[:space:]]*=[[:space:]]*".*".*/theme.fg_minimize = "'${colors[0]}'"/g' ~/.config/awesome/rc.lua
+    sed -i -e 's/^theme.fg_normal[[:space:]]*=[[:space:]]*".*".*/theme.fg_normal = "'${colors[1]}'"/g' ~/.config/awesome/rc.lua
+    sed -i -e 's/^theme.fg_focus[[:space:]]*=[[:space:]]*".*".*/theme.fg_focus = "'${colors[2]}'"/g' ~/.config/awesome/rc.lua
+    wal -c -g -n -i "${WP}"
 
     # Gnome 3, Unity
     gsettings set org.gnome.desktop.background picture-uri "file://$WP" 2> /dev/null
@@ -1174,6 +1186,7 @@ fi
 if [[ ! -z $filename ]]; then
     echostep 'Setting wallpaper...'
     set.wallpaper "${filename}"
+    ln -sf "${filename}" $HOME/wallpaper.jpg
     [[ ! -z $jpg ]] && echo 'URL:  '"${jpg}"
     if [[ ! -z $pic_name ]]; then
         echo 'FILE: '$PWD/"${pic_name}"
