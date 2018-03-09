@@ -224,7 +224,7 @@ set.wallpaper(){
     sed -i -e 's/^theme.fg_minimize[[:space:]]*=[[:space:]]*".*".*/theme.fg_minimize = "'${colors[0]}'"/g' ~/.config/awesome/rc.lua
     sed -i -e 's/^theme.fg_normal[[:space:]]*=[[:space:]]*".*".*/theme.fg_normal = "'${colors[1]}'"/g' ~/.config/awesome/rc.lua
     sed -i -e 's/^theme.fg_focus[[:space:]]*=[[:space:]]*".*".*/theme.fg_focus = "'${colors[2]}'"/g' ~/.config/awesome/rc.lua
-    wal -c -g -n -i "${WP}"
+    wal -a 60 -c -g -n -i "${WP}"
 
     # Gnome 3, Unity
     gsettings set org.gnome.desktop.background picture-uri "file://$WP" 2> /dev/null
@@ -947,7 +947,7 @@ http.get.url.konachan(){
     local page=$((20 * RANDOM / 32768 + 1))
     local BASE_URL='https://konachan.com/post.xml?limit=50&tags=scenic&page='${page}
     local image_url="$( curl -A "${USER_AGENT}" "${BASE_URL}" -k -s -o- | grep 'post actual' | cut -f58 -d'"'  | shuf -n1)"
-    echo http:"${image_url}"
+    echo "${image_url}"
 }
 # stop here if we are being sourced
 [[ "${BASH_SOURCE[0]}" != "${0}" ]] && return 0
