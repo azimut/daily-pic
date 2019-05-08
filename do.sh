@@ -133,6 +133,20 @@ python_check_in_path(){
 
 # >>>>>>>>>>> extra helpers
 
+curlme(){
+    local BASE_URL="$1"
+    curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}"
+}
+
+xhtml(){
+    xmlpath="$1"
+    xmllint --html --xpath "${xmlpath}" - 2>/dev/null
+}
+
+random(){
+    local n="$1"
+    echo -n $((n * RANDOM / 32768 + 1))
+}
 # Description: takes an array as argument and returns a random element
 #              a little bit cheap, but it works ...
 get.array.rand(){
@@ -942,6 +956,28 @@ http.get.url.yandere(){
     local image_url="$( curl -A "${USER_AGENT}" "${BASE_URL}" -k -s -o- | grep 'post id' | cut -f42 -d'"'  | shuf -n1)"
     echo "${image_url}"
 }
+http.get.url.theanimegallery(){
+    dtitle 'The Anime List'
+    local domain='www.theanimegallery.com'
+    # local url='http://'${domain}'/gallery/category:screenshots'
+    # local lastpage=$( curlme "${url}" \
+    #                       | xhtml '//a[@class="paging"][last()]/@href' \
+    #                       | tr -cd '[0-9]' )
+    local rpage=$(random 209)
+    local rurl='http://'${domain}'/gallery/category:screenshots/page:'${rpage}
+    local purl=$(curlme $rurl \
+                     | xhtml '//div[@class="thumbimage"]/a/@href'\
+                     | tr ' ' '\n' \
+                     | grep href \
+                     | cut -f2 -d'"' \
+                     | shuf -n1 \
+                     | sed 's#.*image:\([0-9]*\).*#\1#g')
+    # http://www.theanimegallery.com/download/image:183887
+    local purl='http://'${domain}
+#    local purl='http://'${domain}${purl}
+#    local iurl='http://'${domain}$(curlme $purl | xhtml '//div[@class="download"]/a/@href' | cut -f2 -d'"')
+    echo "$purl"
+}
 http.get.url.konachan(){
     dtitle 'konachan - scenic'
     local page=$((20 * RANDOM / 32768 + 1))
@@ -981,6 +1017,9 @@ while getopts ':hn:a:c:w:m:e:' opt; do
                     ;;
                 simpledesktops)
                     jpg=$(http.get.url.simpledesktops)
+                    ;;
+                theanimegallery)
+                    jpg=$(http.get.url.theanimegallery)
                     ;;
                 fractionmagazine)
                     jpg=$(http.get.url.fractionmagazine)
