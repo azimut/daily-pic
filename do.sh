@@ -684,9 +684,9 @@ http.get.url.reddit(){
     dtitle 'reddit - /r/wallpapers'
     local BASE_URL='https://www.reddit.com/r/wallpapers/.json'
     local image_url=$( curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" \
-                       | tr ' ' '\n' \
-                       | egrep -o '(http://i.imgur.com/[[:alnum:]]+\.(png|jpg))|(https://i.redditmedia.com/.+.jpg\?s=[[:alnum:]]+)' \
-                       | shuf -n1 )
+                           | jq -r '.data.children[].data.url' \
+                           | egrep -o '(http[s]?://.*/[[:alnum:]]+\.(png|jpg))' \
+                           | shuf -n1 )
     if [[ ! -z ${image_url} ]]; then
         echo "${image_url}"
     fi
@@ -872,8 +872,8 @@ http.get.url.fvalk(){
     local dust='GOES-12'
     local image_url=$(
         curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
-        grep -m1 "${dust}" |
-        cut -f6 -d'"'
+            grep -m1 "${dust}" |
+            cut -f6 -d'"'
     )
     if [[ ! -z $image_url ]]; then
         echo "${IMAGE_BASE_URL}""${image_url}"
