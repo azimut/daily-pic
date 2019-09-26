@@ -63,7 +63,7 @@ EOF
 }
 help.usage.nature(){
     cat <<EOF
-    -n 
+    -n
         bing
         chromecast
         natgeo
@@ -72,7 +72,7 @@ EOF
 }
 help.usage.news(){
     cat <<EOF
-    -e 
+    -e
         clarinhd
         euronews
         reuters
@@ -80,7 +80,7 @@ EOF
 }
 help.usage.weather(){
     cat <<EOF
-    -w 
+    -w
         latlong.nasa.msfc
         america.smn
         america.nasa.goes
@@ -125,7 +125,7 @@ python_check_in_path(){
     }
 }
 
-[[ $# -eq 0 ]] && { 
+[[ $# -eq 0 ]] && {
     echoerr "uError: Missing argument."
     help.usage
 }
@@ -163,10 +163,10 @@ get.flag.rand(){
 get.date.rand.since(){
     local first_strip_date=$1
     local fs_days_since=$(( $(date --date="${first_strip_date}" +%s) / 60 / 60 / 24 ))
-     
+
     local today_date=$(date +%F)
     local today_days_since=$(( $(date +%s) / 60 / 60 / 24 ))
-     
+
     local days_since=$(( ${today_days_since} - ${fs_days_since} ))
     local random_day=$(( days_since * RANDOM / 32768 + 1 ))
     echo $(date --date="$random_day days ago" +%F)
@@ -183,7 +183,7 @@ get.date.rand.since(){
 julianDate() {
     jHour=$4
     jDay=$( echo 'scale=5; ('$jHour'/24)' | bc)
-    
+
     gYear=$1
     gMonth=$2
     gDay=$( echo $3 ' + '$jDay | bc)
@@ -194,23 +194,23 @@ julianDate() {
 
     D=$(
         echo 'scale=10;( 365.25 * ('"${gYear}"' + 4716 ) )' |
-        bc | 
+        bc |
         cut -f1 -d'.'
     )
 
     E=$(
-        echo 'scale=10; ( 30.6001 * ('"${gMonth}"' + 1 ) )' | 
+        echo 'scale=10; ( 30.6001 * ('"${gMonth}"' + 1 ) )' |
         bc |
         cut -f1 -d'.'
     )
 
     jDate=$(echo "scale=5; "'('"${C}+${gDay}+${D}+${E}-1524.5"')' | bc)
     jDate=$(echo 'scale=5; ( '$jDate' - 2400000.5 )' | bc)
-    
+
     echo "$jDate"
 }
 
-# >>>>>>>>>>> cross-wm wallpaper setter 
+# >>>>>>>>>>> cross-wm wallpaper setter
 
 # Reference: http://bazaar.launchpad.net/~peterlevi/variety/trunk/view/head:/data/scripts/set_wallpaper
 set.wallpaper(){
@@ -223,7 +223,7 @@ set.wallpaper(){
         cp "$WP" ~/.config/variety/wallpaper-kde.jpg
         return 0
     fi
-    
+
 #    hash gsettings &>/dev/null || \
 #    hash xfconf-query &>/dev/null || \
     DISPLAY=:0.0 feh ${FEH_OPT} "${WP}"
@@ -246,29 +246,29 @@ set.wallpaper(){
     if [ "`gsettings get org.gnome.desktop.background picture-options`" == "'none'" ]; then
         gsettings set org.gnome.desktop.background picture-options 'zoom' 2>/dev/null
     fi
-    
+
     # XFCE
     xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s "" 2> /dev/null
     xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s "$WP" 2> /dev/null
-    
+
     # LXDE/PCmanFM
     pcmanfm --set-wallpaper "$WP" 2> /dev/null
-    
+
     # Feh - commented, as it may cause problems with Nautilus, (see bug https://bugs.launchpad.net/variety/+bug/1047083)
     # feh --bg-scale "$WP" 2> /dev/null
-    
+
     # MATE after 1.6
     gsettings set org.mate.background picture-filename "$WP" 2> /dev/null
-    
+
     # MATE before 1.6
     mateconftool-2 -t string -s /desktop/mate/background/picture_filename "$WP" 2> /dev/null
-    
+
     # Cinnamon after 1.8
     gsettings set org.cinnamon.background picture-uri "file://$WP" 2> /dev/null
-    
+
     # Cinnamon after 2.0
     gsettings set org.cinnamon.desktop.background picture-uri "file://$WP" 2> /dev/null
-    
+
     # Gnome 2
     gconftool-2 -t string -s /desktop/gnome/background/picture_filename "$WP" 2> /dev/null
 
@@ -283,7 +283,7 @@ http.get.url.news.reuters(){
     dtitle 'news - reuters'
     python_check_in_path 'BeautifulSoup'
     python_check_in_path 'urllib2'
-    
+
     python lib/python/news.reuters.py
 }
 
@@ -291,7 +291,7 @@ http.get.url.news.euronews(){
     dtitle 'news - euronews - picture of the day'
     python_check_in_path 'BeautifulSoup'
     python_check_in_path 'urllib2'
-    
+
     python lib/python/news.euronews
 }
 
@@ -299,7 +299,7 @@ http.get.url.news.clarinhd(){
     dtitle 'news - clarinhd - picture of the day'
     python_check_in_path 'BeautifulSoup'
     python_check_in_path 'urllib2'
-    
+
     python lib/python/news.clarinhd
 }
 
@@ -362,7 +362,7 @@ http.get.url.nasa.msfc(){
     local image_url=$(
         curl -A "${USER_AGENT}" -k -s -o- ${URL}/${ARGS} |
         grep jpg |
-        cut -f2 -d'"'        
+        cut -f2 -d'"'
     )
     echo "${URL}${image_url}"
 }
@@ -373,7 +373,7 @@ http.get.url.nasa.msfc(){
 http.get.url.skymap.astronetru(){
     dtitle 'astronet.ru - skymap'
     check_in_path 'date'
-    local year=$(date --utc +%Y) month=$(date --utc +%m) 
+    local year=$(date --utc +%Y) month=$(date --utc +%m)
     local day=$(date --utc +%d) hour=$(date --utc +%H)
     local BASE_URL='http://www.astronet.ru:8105'
     local ARGS='cgi-bin/skyc.cgi?'\
@@ -395,7 +395,7 @@ http.get.url.skymap.heavenabove(){
     dtitle 'heavenabove - skymap'
     check_in_path 'date'
     check_in_path 'bc'
-    local year=$(date --utc +%Y) month=$(date --utc +%m) 
+    local year=$(date --utc +%Y) month=$(date --utc +%m)
     local day=$(date --utc +%d) hour=$(date --utc +%H)
     local size=1000
     local jDate=$(julianDate $year $month $day $hour)
@@ -437,18 +437,18 @@ http.get.url.nasa.jpl(){
     category_array+=('asteroids%20and%20comets')
     category_array+=('universe')
     category_array+=('spacecraft%20and%20telescope')
-    
+
     category=$(get.array.rand ${category_array[@]})
-    
+
     dmsg 'Category: '"${category}"
-   
+
     local URL='http://www.jpl.nasa.gov/spaceimages'
     local BASE_URL="${URL}"'/searchwp.php?category='"${category}"
     # step 1: get the number of pages on the category
     local max_page=$(
         curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
         egrep -o '/spaceimages/searchwp.php\?category='"${category}"'&currentpage=[0-9]+' |
-        tail -n1 | 
+        tail -n1 |
         cut -f3 -d'='
     )
     local rand_page=$(( max_page * RANDOM / 32768 + 1))
@@ -456,13 +456,13 @@ http.get.url.nasa.jpl(){
     # step 2: download a random page from that category
     local PIC_URL=$(
         curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL_PAGE}" |
-        egrep -o 'wallpaper.php\?id=[[:alnum:]]+'  | 
+        egrep -o 'wallpaper.php\?id=[[:alnum:]]+'  |
         shuf -n1
     )
     # step 3: get the largest image
     local image_url=$(
-        curl -A "${USER_AGENT}" -k -s -o- "${URL}/${PIC_URL}" | 
-        egrep -o 'images/wallpaper/[[:alnum:]x-]+\.(jpg|png|gif|jpeg)' | 
+        curl -A "${USER_AGENT}" -k -s -o- "${URL}/${PIC_URL}" |
+        egrep -o 'images/wallpaper/[[:alnum:]x-]+\.(jpg|png|gif|jpeg)' |
         tail -1
     )
     [[ ! -z $image_url ]] && {
@@ -473,18 +473,18 @@ http.get.url.nasa.jpl(){
 http.get.url.calvinandhobbes(){
     dtitle 'calvin and hobbes - comic'
     check_in_path 'date'
-    
+
     local first_strip_date='1985-11-18'
     local date_strip=$(get.date.rand.since "${first_strip_date}")
     date_strip=${date_strip//-/\/} # fixing formatting
- 
-    dmsg 'Date: '"${date_strip}"    
+
+    dmsg 'Date: '"${date_strip}"
 
     local BASE_URL='http://www.gocomics.com/calvinandhobbes/'"${date_strip}"
     local image_url=$(
         curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
-        grep '"strip"' | 
-        tr '"' '\n'| 
+        grep '"strip"' |
+        tr '"' '\n'|
         grep asset
     )
     [[ ! -z $image_url ]] && {
@@ -496,17 +496,17 @@ http.get.url.calvinandhobbes(){
 http.get.url.dilbert(){
     dtitle 'dilbert - comic'
     check_in_path 'date'
-    
+
     local first_strip_date='1989-04-16'
-    
+
     local date_strip=$(get.date.rand.since "${first_strip_date}")
-    
-    dmsg 'Date: '"${date_strip}"    
-    
+
+    dmsg 'Date: '"${date_strip}"
+
     local BASE_URL='http://www.dilbert.com/'"${date_strip}"'/'
     local image_url=$(
         curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
-        grep '.strip.zoom.gif' | 
+        grep '.strip.zoom.gif' |
         cut -f2 -d '"'
     )
 
@@ -558,13 +558,13 @@ http.get.url.chromecast(){
     dtitle 'chromecast - wallpaper'
     local BASE_URL='https://clients3.google.com/cast/chromecast/home/v/c9541b08'
     local image_url="$(
-        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
         egrep -o 'JSON\.parse[^)]+' |
         tr -d '\\[' |
         cut -f2 -d"'" |
         tr ',' '\n' |
         fgrep 'https' |
-        sed -e 's/x22\(.*\)x22/\1/g' | 
+        sed -e 's/x22\(.*\)x22/\1/g' |
 				fgrep .jpg |
         shuf -n1
     )"
@@ -582,13 +582,13 @@ http.get.url.imgur.albums(){
     BASE_URL_ARRAY+=('a/kknsQ') # wallpaper collection
 
     local BASE_URL=$(get.array.rand ${BASE_URL_ARRAY[@]})
-    
+
     BASE_URL='http://imgur.com/'"${BASE_URL}"'/noscript'
-    
+
     local image_url=$(
-        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
-        egrep -o '"//i\.imgur.com/[[:alnum:]]+\.(jpg|png|jpeg)' | 
-        cut -f3- -d/ | 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+        egrep -o '"//i\.imgur.com/[[:alnum:]]+\.(jpg|png|jpeg)' |
+        cut -f3- -d/ |
         shuf -n1
     )
 
@@ -611,11 +611,11 @@ http.get.url.imgur.subreddit(){
     local BASE_URL=$(get.array.rand ${BASE_URL_ARRAY[@]})
     dmsg 'Category: '"${BASE_URL}"
     local page=$((10 * RANDOM / 32768 + 1))
-    
+
     BASE_URL='https://api.imgur.com/3/gallery/'"${BASE_URL}"'/time/'"${page}"'/images.xml'
 
     local ak='1b138bce405b2e0'
-   
+
     local image_url=$(
         curl -A "${USER_AGENT}" -k -s -o- --header 'Authorization: Client-ID '"${ak}" "${BASE_URL}" |
         egrep -o 'http://i\.imgur.com/[[:alnum:]]+\.(jpg|png|jpeg)' |
@@ -633,7 +633,7 @@ http.get.url.simpledesktops(){
     local BASE_URL='http://simpledesktops.com/browse/'"${page}"'/'
     local image_url=$(
         curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
-        egrep -o 'http://static.simpledesktops.com/uploads/desktops/[0-9]+/[0-9]+/[0-9]+/[[:alnum:]_-]+\.(jpg|png|jpeg)' | 
+        egrep -o 'http://static.simpledesktops.com/uploads/desktops/[0-9]+/[0-9]+/[0-9]+/[[:alnum:]_-]+\.(jpg|png|jpeg)' |
         shuf -n1
     )
 
@@ -668,9 +668,9 @@ http.get.url.deviantart(){
     local BASE_URL=$(get.array.rand ${BASE_URL_ARRAY[@]})
 
     local image_url=$(
-        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
-        egrep -o 'data-src="http://[[:alnum:]]+\.deviantart\.net/[[:alnum:]]+/200H/.+/.+/.+/.+/.+/.+\.(png|jpg|jpeg)"' | 
-        cut -f2 -d'"' | 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+        egrep -o 'data-src="http://[[:alnum:]]+\.deviantart\.net/[[:alnum:]]+/200H/.+/.+/.+/.+/.+/.+\.(png|jpg|jpeg)"' |
+        cut -f2 -d'"' |
         shuf -n1
     )
     if [[ ! -z $image_url ]]; then
@@ -698,8 +698,8 @@ http.get.url.bing(){
     local BASE_URL='http://www.bing.com/HPImageArchive.aspx?format=js&n=1&pid=hp&video=0'
     local IMAGE_BASE_URL='http://www.bing.com'
     local image_url=$(
-        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
-        sed -E 's/.*"url":"([^"]+)"[,\}].*/\1/g' 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+        sed -E 's/.*"url":"([^"]+)"[,\}].*/\1/g'
     )
     if [[ ! -z ${image_url} ]]; then
         echo "${IMAGE_BASE_URL}""${image_url}"
@@ -725,8 +725,8 @@ http.get.url.wallhaven(){
     BASE_URL="${BASE_URL}"'&categories=111&purity=110&sorting=random&order=desc'
 
     local image_preview=$(
-        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL[*]}" | 
-        egrep -o 'alpha.wallhaven.cc/wallpaper/[0-9]+' | 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL[*]}" |
+        egrep -o 'alpha.wallhaven.cc/wallpaper/[0-9]+' |
         sort -d |
         uniq |
         shuf -n1
@@ -737,7 +737,7 @@ http.get.url.wallhaven(){
 				egrep -o 'wallpapers.wallhaven.cc/wallpapers/full/wallhaven-[0-9]+\.(jpg|png|jpeg)' |
         head -n1
     )
-    
+
     if [[ ! -z $image_url ]]; then
         echo "${image_url}"
     fi
@@ -750,8 +750,8 @@ http.get.url.nrlmry.nexsat(){
     local BASE_URL='http://www.nrlmry.navy.mil/nexsat-bin/nexsat.cgi?BASIN=CONUS&SUB_BASIN=focus_regions&AGE=Archive&REGION='"${region}"'&SECTOR=Overview&PRODUCT=vis_ir_background&SUB_PRODUCT=goes&PAGETYPE=static&DISPLAY=single&SIZE=Thumb&PATH='"${path}"'/vis_ir_background/goes&&buttonPressed=Archive'
     local IMAGE_BASE_URL='http://www.nrlmry.navy.mil/htdocs_dyn_apache/PUBLIC/nexsat/thumbs/full_size/'"${path}"'/vis_ir_background/goes/'
     local image_url=$(
-        curl -A "${USER_AGENT}" -k -s -o- "$BASE_URL" | 
-        fgrep -m1 option | 
+        curl -A "${USER_AGENT}" -k -s -o- "$BASE_URL" |
+        fgrep -m1 option |
         cut -f2 -d'"'
     )
     if [[ ! -z $image_url ]]; then
@@ -769,23 +769,23 @@ http.get.url.4walled(){
     # 4 -- /hr/  -- NSFW/High Resolution
     #         --       -- ALL
     local board=
-    
+
     # sfw=
     # -1 -- unrated
     #  0 -- Safe for work
     #  1 -- Borderline
     #  2 -- NSFW
     local sfw=0
-    
+
     local URL='http://4walled.cc/search.php?tags=&board'${board}'=&width_aspect=1024x133&searchstyle=larger&sfw='"${sfw}"'&search=random'
     local BASE_URL=$(
-        curl -A "${USER_AGENT}" -k -s -o- "${URL}" | 
-        fgrep -m1 '<li class' | 
+        curl -A "${USER_AGENT}" -k -s -o- "${URL}" |
+        fgrep -m1 '<li class' |
         cut -f4 -d"'"
     )
     local image_url=$(
-        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
-        fgrep -m1 'href="http' | 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+        fgrep -m1 'href="http' |
         cut -f2 -d'"'
     )
     if [[ ! -z $image_url ]]; then
@@ -799,9 +799,9 @@ http.get.url.interfacelift(){
     local BASE_URL='http://interfacelift.com/wallpaper/downloads/random/fullscreen/1600x1200/'
     local IMAGE_BASE_URL='http://interfacelift.com'
     local image_url=$(
-        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
-        egrep -o 'a href="/wallpaper/[[:alnum:]]+/[[:alnum:]_]+.jpg' | 
-        cut -f2 -d'"' | 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+        egrep -o 'a href="/wallpaper/[[:alnum:]]+/[[:alnum:]_]+.jpg' |
+        cut -f2 -d'"' |
         shuf -n1
     )
     if [[ ! -z $image_url ]]; then
@@ -813,7 +813,7 @@ http.get.url.nasa.apod.rand(){
     dtitle 'NASA - rand() Astronomy picture of th day'
     local BASE_URL='http://apod.nasa.gov/apod/archivepix.html'
     local BASE_INDEX=$(
-        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
         egrep -o 'ap[0-9]*\.html' |
         head -n2000 |
         shuf -n1
@@ -835,8 +835,8 @@ http.get.url.nasa.apod(){
     local BASE_URL='http://apod.nasa.gov/apod/'
     local IMAGE_BASE_URL=$BASE_URL
     local image_url=$(
-        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
-        egrep -m1 'jpg|png|gif' | 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+        egrep -m1 'jpg|png|gif' |
         cut -f2 -d'"'
     )
     if [[ ! -z $image_url ]]; then
@@ -850,8 +850,8 @@ http.get.url.natgeo(){
     local BASE_URL='http://photography.nationalgeographic.com/photography/photo-of-the-day/'
     local IMAGE_BASE_URL='images.nationalgeographic.com'
     local image_url=$(
-        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |  
-        egrep -o -m1 "${IMAGE_BASE_URL}"'/.*[0-9]*x[0-9]*.jpg' 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+        egrep -o -m1 "${IMAGE_BASE_URL}"'/.*[0-9]*x[0-9]*.jpg'
     )
     if [[ ! -z $image_url ]]; then
         echo 'http://'"${image_url}"
@@ -871,8 +871,8 @@ http.get.url.fvalk(){
     local IMAGE_BASE_URL='http://www.fvalk.com/images/Day_image/'
     local dust='GOES-12'
     local image_url=$(
-        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" | 
-        grep -m1 "${dust}" | 
+        curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+        grep -m1 "${dust}" |
         cut -f6 -d'"'
     )
     if [[ ! -z $image_url ]]; then
@@ -898,13 +898,13 @@ http.get.url.nasa.iotd(){
     local BASE_URL='http://www.nasa.gov/rss/dyn/image_of_the_day.rss'
     local html_url=$(base64 <(curl -A "${USER_AGENT}" -k -s -o- --header 'Accept-Encoding: gzip' "${BASE_URL}"))
     local ftype=$(echo "$html_url" | base64 --decode | file -)
-    
+
     if [[ $ftype == *gzip* ]]; then
         html_url=$(echo "$html_url" | base64 --decode | gunzip -)
     else
         html_url=$(echo "$html_url" | base64 --decode )
     fi
-    
+
     image_url=$(echo "$html_url" | fgrep -m1 enclosure | cut -f2 -d'"' )
     if [[ ! -z $image_url ]]; then
         echo "${image_url}"
@@ -1179,9 +1179,9 @@ while getopts ':hn:a:c:w:m:e:' opt; do
                     exit 1
                     ;;
             esac ;;
-        \?) 
+        \?)
             help.usage
-            exit 1;; 
+            exit 1;;
         h)
             help.usage
             exit 1;;
@@ -1208,11 +1208,11 @@ cd pics
 if [[ ! -z $jpg ]]; then
     pic_name=${jpg##*/}
     filename="${PWD}/${pic_name}"
-    
-    echostep 'Downloading image...' 
+
+    echostep 'Downloading image...'
     # Reference: http://blog.yjl.im/2012/03/downloading-only-when-modified-using.html
     curl -A "${USER_AGENT}" -k --dump-header - "${jpg}" -z "${filename}" -o "${filename}" -s -L 2>/dev/null
-    
+
     # Apply convert filter to downloaded image
     [[ ! -z $CONVERT_OPT ]] && hash convert &>/dev/null && {
         original_image="$filename"
