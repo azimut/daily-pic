@@ -228,16 +228,16 @@ set.wallpaper(){
 #    hash xfconf-query &>/dev/null || \
     DISPLAY=:0.0 feh ${FEH_OPT} "${WP}"
     colors=( $(convert "${WP}" -resize %25 \
-                                           -colors 3 \
-                                           -unique-colors txt:- \
+                       -colors 3 \
+                       -unique-colors txt:- \
                 | awk '{print $3}' \
                 | tail -n+2) )
-    sed -i -e 's/^theme.border_normal[[:space:]]*=[[:space:]]*".*".*/theme.border_normal = "'${colors[0]}'"/g' ~/.config/awesome/rc.lua
-    sed -i -e 's/^theme.border_focus[[:space:]]*=[[:space:]]*".*".*/theme.border_focus = "'${colors[2]}'"/g' ~/.config/awesome/rc.lua
+    sed --follow-symlinks -i -e 's/^theme.border_normal[[:space:]]*=[[:space:]]*".*".*/theme.border_normal = "'${colors[0]}'"/g' ~/.config/awesome/rc.lua
+    sed --follow-symlinks -i -e 's/^theme.border_focus[[:space:]]*=[[:space:]]*".*".*/theme.border_focus = "'${colors[2]}'"/g' ~/.config/awesome/rc.lua
 
-    sed -i -e 's/^theme.fg_minimize[[:space:]]*=[[:space:]]*".*".*/theme.fg_minimize = "'${colors[0]}'"/g' ~/.config/awesome/rc.lua
-    sed -i -e 's/^theme.fg_normal[[:space:]]*=[[:space:]]*".*".*/theme.fg_normal = "'${colors[1]}'"/g' ~/.config/awesome/rc.lua
-    sed -i -e 's/^theme.fg_focus[[:space:]]*=[[:space:]]*".*".*/theme.fg_focus = "'${colors[2]}'"/g' ~/.config/awesome/rc.lua
+    sed --follow-symlinks -i -e 's/^theme.fg_minimize[[:space:]]*=[[:space:]]*".*".*/theme.fg_minimize = "'${colors[0]}'"/g' ~/.config/awesome/rc.lua
+    sed --follow-symlinks -i -e 's/^theme.fg_normal[[:space:]]*=[[:space:]]*".*".*/theme.fg_normal = "'${colors[1]}'"/g' ~/.config/awesome/rc.lua
+    sed --follow-symlinks -i -e 's/^theme.fg_focus[[:space:]]*=[[:space:]]*".*".*/theme.fg_focus = "'${colors[2]}'"/g' ~/.config/awesome/rc.lua
     wal -a 60 -c -g -n -i "${WP}"
 
     # Gnome 3, Unity
