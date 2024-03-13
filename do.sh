@@ -696,13 +696,9 @@ http.get.url.deviantart() {
 # Reference: https://github.com/wmmc/Wallpaper-Downloader
 http.get.url.reddit() {
 	dtitle 'reddit - /r/wallpapers'
-	local BASE_URL='https://www.reddit.com/r/wallpapers/.json'
-	local image_url=$(curl -A "${USER_AGENT}" -k -s -o- "${BASE_URL}" |
+	curl -A "${USER_AGENT}" -k -s -o- 'https://www.reddit.com/r/wallpapers/.json' |
 		jq -r '.data.children[].data.url | select(test("(png|jpg|jpeg)$"))' |
-		shuf -n1)
-	if [[ ! -z ${image_url} ]]; then
-		echo "${image_url}"
-	fi
+		shuf -n1
 }
 
 # Reference: https://github.com/tsia/bing-wallpaper
