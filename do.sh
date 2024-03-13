@@ -131,6 +131,7 @@ check_in_path() {
 check_in_path 'feh'
 check_in_path 'curl'
 check_in_path 'shuf'
+check_in_path 'jq'
 
 python_check_in_path() {
 	local module_name="$@"
